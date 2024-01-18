@@ -1,0 +1,24 @@
+int SOCKET(int DOMAIN, int TYPE, int PROTOCOL);
+
+    - / SOCKET / creates  an endpoint for communication and returns a file de‐
+    scriptor that refers to that endpoint.
+
+    - / DOMAIN / selects the protocol family which will be used for communication
+    in our case (SUBJECT.PDF) its AF_INET (IPv4) or AF_INET6 (IPv6).
+
+    - / TYPE / specifies the communication semantics. SOCK_STREAM should work for us
+    because it is stable and most used when TCP is used.
+
+    - / PROTOCOL / 0 means the system will use the default protocol for the domain and
+    type chosen. Or we can chose (IPPROTO_TCP) because our cas is TCP. But just to know
+    0 is the most used.
+
+    - On Success RETURNS a int fd, On Error -1 (PROTECTION)
+
+
+int CLOSE(int FD) - WE ALREADY KNOW
+
+
+
+
+
