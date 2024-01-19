@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/19 14:37:22 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/19 15:47:23 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,16 @@ class Server
         Server(char *av1, char *av2);
         ~Server();
 
+        void        bindServ();
+
+        // --- SETTERS --- //
+        void        setSockFd();
+        
         // --- GETTERS --- //
         int         getPort();
         std::string getPassword();
+        int         getSockFd();
+        
         
 };
 
