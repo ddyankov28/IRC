@@ -1,3 +1,35 @@
+###     FUNCTIONS COMPARED TO A REAL PHONE CALL     ###
+
+    SOCKET()        - Set up a communication endpoint.
+    CLOSE()         - End the conversation.
+    SETSOCKOPT()    - Adjust the communication settings.
+    GETSOCKNAME()   - Check the address assigned to your phone line.
+    GETPROTOBYNAME()- Look up a communication protocol by name.
+    GETHOSTBYNAME() - Find the telephone number for a given host.
+    GETADDRINFO()   - Gather information about a phone number or address.
+    FREEADDRINFO()  - Release information about a phone number or address.
+    BIND()          - Register your phone number to a physical telephone line.
+    CONNECT()       - Dial a number to establish a connection.
+    LISTEN()        - Wait for a caller to ring your phone.
+    ACCEPT()        - Answer an incoming call.
+    HTONS()         - Convert a number to a network-friendly format for dialing.
+    HTONL()         - Convert a long number to a network-friendly format for dialing.
+    NTOHS()         - Convert a network-friendly number back to a local format.
+    NTOHL()         - Convert a network-friendly long number back to a local format.
+    INET_ADDR()     - Convert a string phone number to a numerical format.
+    INET_NTOA()     - Convert a numerical phone number to a string format.
+    SEND()          - Send a message during the conversation.
+    RECV()          - Receive a message during the conversation.
+    SIGNAL()        - Set up a custom ringtone for specific events.
+    SIGACTION()     - Configure how to respond to a specific ringtone.
+    LSEEK()         - Move to a specific point in the conversation.
+    FSTAT()         - Check the status of the conversation.
+    FCNTL()         - Adjust properties of the conversation, like making it non-blocking.
+    POLL()          - Check for incoming calls or messages without blocking.
+
+------------------------------------------------------------------------------------------
+some basic explanations but check better the manual or ask the internet for better info
+
 int SOCKET(int DOMAIN, int TYPE, int PROTOCOL);
 
     - / SOCKET / creates  an endpoint for communication and returns a file de‐
@@ -15,10 +47,38 @@ int SOCKET(int DOMAIN, int TYPE, int PROTOCOL);
 
     - On Success RETURNS a int fd, On Error -1 (PROTECTION)
 
+------------------------------------------------------------------------------------------
 
-int CLOSE(int FD) - WE ALREADY KNOW
+int CLOSE(int FD); - WE ALREADY KNOW
 
+------------------------------------------------------------------------------------------
 
+int SETSOCKOPT(int SOCKFD, int LEVEL, int OPTNAME, const void* OPTVAL, socklen_t OPTLEN);
 
+    - / SETSOCKOPT / manipulate options for the socket reffered to the FD. 
 
+    - / SOCKFD / - The fd from func SOCKET;
 
+    - / LEVEL / - is where you indicate the domain or layer of the communication stack for which you are setting options.
+    We can just use SOL_SOCKET (used for general socket options that are applicable to most types of sockets.)
+
+    - / OPTNAME / - says what we want to do with the socket
+        -- SO_REUSEADDR - allows to reuse a local address for a new socket. Useful when we want
+        to quickly restart a server that was using a particular port.
+        -- SO_KEEPALIVE - enables or disables the sending of keep-alive messages on a TCP socket.
+        Keep alive messages are used to check if the connection is still active.
+
+    - / OPTVAL / - a boolean value for the OPTNAME.
+
+    - / OPTLEN / - the size of the data beeing past, actually the OPTVAL.
+
+-------------------------------------------------------------------------------------------
+
+int GETSOCKNAME(int SOCKFD, struct sockaddr *ADDR, socklen_t *ADDRLEN)
+
+    - / GETSOCKNAME / - return the current addr to which SOCKFD is bound, in the buffer pointed to by ADDR.
+
+    - / ADDRLEN / - to indicate the amount of space (bytes) pointed by ADDR. On return it contains
+    the actual size of the socket address. 
+
+-------------------------------------------------------------------------------------------

@@ -6,11 +6,11 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 10:40:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/18 13:04:16 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/19 14:37:13 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-# include "server.hpp"
+# include "../includes/Server.hpp"
 
 int main(int ac, char **av)
 {
@@ -22,6 +22,11 @@ int main(int ac, char **av)
         return 1;
     }
     std::cout << "IRC SERVER" << std::endl;
-    int sock_fd = socket()
+    // std::cout << "PORT: " << av[1] << "\nPASSWORT: " << av[2] << std::endl;
+    Server  irc(av[1], av[2]);
+    
+    //std::cout << "PORT: " << irc.getPort() << "\nPASSWORT: " << irc.getPassword() << std::endl;
+
+    
     return 0;
 }

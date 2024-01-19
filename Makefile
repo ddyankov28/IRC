@@ -6,7 +6,7 @@
 #    By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/18 10:33:46 by ddyankov          #+#    #+#              #
-#    Updated: 2024/01/18 10:39:59 by ddyankov         ###   ########.fr        #
+#    Updated: 2024/01/19 14:35:38 by ddyankov         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,17 +16,17 @@ COLOUR_END = \033[0m
 
 NAME = ircserv
 
-SRC = main.cpp
+SRC = srcs/main.cpp srcs/Server.cpp
 
-OBJ = $(patsubst %.cpp, obj/%.o, $(SRC))
+OBJ = $(patsubst srcs/%.cpp, obj/%.o, $(SRC))
 
-DEPS = $(patsubst %.cpp, obj/%.d, $(SRC))
+DEPS = $(patsubst srcs/%.cpp, obj/%.d, $(SRC))
 
 CPPFLAGS = -Wall -Werror -Wextra -std=c++98 -MMD -MP -g -pedantic
 
 .PHONY: all clean fclean re
 
-obj/%.o: %.cpp
+obj/%.o: srcs/%.cpp
 	@mkdir -p obj
 	@c++ $(CPPFLAGS) -c $< -o $@
 
