@@ -1,6 +1,32 @@
 {
-  "version": "0.2.0",
   "configurations": [
+    {
+      "name": "(gdb) Launch",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/ircserv",
+      "args": [
+        "124",
+        "asd"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ]
+    },
     {
       "name": "C/C++ Runner: Debug Session",
       "type": "cppdbg",
@@ -8,8 +34,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/nfs/homes/ddyankov/Desktop/github/IRC",
-      "program": "/nfs/homes/ddyankov/Desktop/github/IRC/build/Debug/outDebug",
+      "cwd": "/nfs/homes/ddyankov/Desktop/github/IRC/srcs",
+      "program": "/nfs/homes/ddyankov/Desktop/github/IRC/srcs/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [

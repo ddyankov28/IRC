@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 10:40:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/19 15:38:47 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/22 13:36:06 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,9 +23,8 @@ int main(int ac, char **av)
     try
     {
         Server  irc(av[1], av[2]);
-        std::cout << "PORT: " << irc.getPort() << "\nPASSWORT: " << irc.getPassword() << std::endl;
-        irc.setSockFd();
-        std::cout << "SOCKET_FD: " << irc.getSockFd() << std::endl;
+
+        irc.setServ();
     }
     catch(std::exception& e)
     {
