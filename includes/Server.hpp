@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/23 12:46:22 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/23 14:19:45 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ class Server
         std::string         _password;
         int                 _sockFd;
         struct sockaddr_in  _servAddr;
+        int                 _newSockFd;
     public:
         Server(char *av1, char *av2);
         ~Server();
@@ -34,6 +35,7 @@ class Server
         void        setAddr();
         void        listenServ();
         
+        void        acceptConnections();
         
 };
 
