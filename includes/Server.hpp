@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/23 14:19:45 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/26 13:50:23 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,23 @@ class Server
         Server();
         int                 _port;
         std::string         _password;
-        int                 _sockFd;
+        int                 _servSockFd;
         struct sockaddr_in  _servAddr;
         int                 _newSockFd;
+        pollfd              _polls[MAX_CONNECTIONS];
+        int                 _usersCounter;
+        bool                _shouldRun;
     public:
         Server(char *av1, char *av2);
         ~Server();
 
-        void        setServ();
+        void        setAndRunServ();
         // Setup the server //
         void        bindServ();
         void        setSockFd();
         void        setAddr();
         void        listenServ();
+        void        printFdStruct();
         
         void        acceptConnections();
         

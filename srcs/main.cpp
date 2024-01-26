@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 10:40:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/22 13:36:06 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/24 15:32:32 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ int main(int ac, char **av)
     {
         Server  irc(av[1], av[2]);
 
-        irc.setServ();
+        irc.setAndRunServ();
     }
     catch(std::exception& e)
     {

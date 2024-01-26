@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/23 14:56:34 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/25 12:42:54 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <cstdio>
 # include <poll.h>
 # include <vector>
+# include <fcntl.h>
 
 # define URED "\033[4;31m"
 # define RED "\033[1;91m"
