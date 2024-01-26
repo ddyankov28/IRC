@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/26 13:59:24 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/26 15:29:41 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,14 +109,14 @@ void    Server::setAndRunServ()
     std::cout << GREEN << "Server is running" << RESET << std::endl;
     while (_shouldRun)
     {
-        int numConnections = poll(_polls, _usersCounter, 3000);
-        std::cout << numConnections << std::endl;
-        if (numConnections < 0)
+        int numEvents = poll(_polls, _usersCounter, 3000);
+        std::cout << numEvents << std::endl;
+        if (numEvents < 0)
         {
             perror("Error:");
             throw std::runtime_error("POLL ERROR");
         }
-        else if (numConnections > 0)
+        else if (numEvents > 0)
         {
             std::cout << "POLL ALREADY MONITORING" << std::endl;
             while (i < _usersCounter)
