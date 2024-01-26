@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/26 15:29:41 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/26 16:06:12 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,9 @@ Server::~Server()
 
 void    Server::setSockFd()
 {
-    _servSockFd = socket(AF_INET, SOCK_STREAM, 0);
+    _servSockFd = socket(PF_INET, SOCK_STREAM, 0); // get the fd for the server
     if (_servSockFd == -1)
-    {
-        perror("ERROR");
         throw std::out_of_range("SOCKET ERROR");
-    }
     std::cout << GREEN << "Socket created successfully" << RESET << std::endl;
 }
 
@@ -33,10 +30,7 @@ void    Server::setAddr()
 {
     int opt = 1;
     if (setsockopt(_servSockFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1) 
-    {
-        perror("ERROR");
         throw std::runtime_error("SET OPTIONS ERROR");
-    }
     fcntl(_servSockFd, F_SETFL, O_NONBLOCK);
     memset(&_servAddr, 0, sizeof(_servAddr));
     _servAddr.sin_family = AF_INET;  // ipv4
@@ -47,10 +41,9 @@ void    Server::setAddr()
 
 void    Server::bindServ()
 {
-    if (bind(_servSockFd, (struct sockaddr *) &_servAddr, sizeof(_servAddr)) == -1)
+    if (bind(_servSockFd, (struct sockaddr *) &_servAddr, sizeof(_servAddr)) == -1) // bind to the port using the addr struct
     {
         close(_servSockFd);
-        perror("ERROR");
         throw std::runtime_error("BINDING ERROR");
     }
     std::cout << GREEN << "Server binded successfully" << RESET << std::endl;
@@ -61,7 +54,6 @@ void    Server::listenServ()
     if (listen(_servSockFd, MAX_CONNECTIONS) == -1)
     {
         close(_servSockFd);
-        perror("ERROR");
         throw std::runtime_error("LISTEN ERROR");
     }
     std::cout << GREEN << "Server is listening successfully" << RESET << std::endl;
@@ -73,12 +65,11 @@ void    Server::acceptConnections()
     if ((_newSockFd = accept(_servSockFd, (struct sockaddr *) &_servAddr, &_servAddrLen)) == -1)
     {
         close(_servSockFd);
-        perror("ERROR");
         throw std::runtime_error("ACCEPT ERROR");
     }
     std::cout << "Server accepted a connection" << std::endl;
-    send(_newSockFd, "Please provide the password: ", 30, 0);
-    char buffer[100];
+    send(_newSockFd, "WELCOME TO THE SERVER: ", 24, 0);
+    /* char buffer[100];
     recv(_newSockFd, buffer, 100, 0);
     size_t receivedBytes = strlen(buffer);
     if (receivedBytes > 0 && buffer[receivedBytes - 1] == '\n') {
@@ -90,7 +81,7 @@ void    Server::acceptConnections()
     if (userInput == _password)
         std::cout << GREEN << "PASSWORD IS CORRECT" << RESET << std::endl;
     else
-        std::cout << RED << "PASSWORD IS WRONG" << RESET << std::endl;
+        std::cout << RED << "PASSWORD IS WRONG" << RESET << std::endl;*/
 }
 
 void    Server::setAndRunServ()
