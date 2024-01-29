@@ -1,0 +1,9 @@
+Connection Registration
+    1. Pass message
+    2. Nick message
+    3. User message
+
+    Password message
+    Command: PASS
+    Parameters: <password>
+    
