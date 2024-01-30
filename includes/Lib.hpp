@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/25 12:42:54 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/29 14:23:58 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <poll.h>
 # include <vector>
 # include <fcntl.h>
+# include <csignal>
 
 # define URED "\033[4;31m"
 # define RED "\033[1;91m"
@@ -34,5 +35,7 @@
 # define LINE  std::cout << "-------------------------" << std::endl;
 
 # define MAX_CONNECTIONS 2
+
+extern int shouldRun;
 
 # endif

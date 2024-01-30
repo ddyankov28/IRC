@@ -6,13 +6,13 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/29 13:52:15 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/30 12:09:41 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Server.hpp"
 
-Server::Server(char *av1, char *av2) : _port(atoi(av1)), _password(av2), _usersCounter(0)
+Server::Server(char *av1, char *av2) : _port(atoi(av1)), _password(av2), _fdsCounter(0)
 {}
 
 Server::~Server()
@@ -20,8 +20,8 @@ Server::~Server()
 
 void    Server::setSockFd()
 {
-    _servSockFd = socket(PF_INET, SOCK_STREAM, 0); // get the fd for the server
-    if (_servSockFd == -1)
+    _serverFd = socket(PF_INET, SOCK_STREAM, 0); // get the fd for the server
+    if (_serverFd == -1)
     {
         perror("Error");
         throw std::runtime_error("Socket Error");
@@ -32,9 +32,9 @@ void    Server::setSockFd()
 void    Server::setAddr()
 {
     int opt = 1;
-    if (setsockopt(_servSockFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1)
+    if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1)
     {
-        close(_servSockFd);
+        close(_serverFd);
         perror("Error");
         throw std::runtime_error("Setting socket options Error");
     }
@@ -42,14 +42,14 @@ void    Server::setAddr()
     _servAddr.sin_family = AF_INET;  // ipv4
     _servAddr.sin_addr.s_addr = INADDR_ANY; // accept connections on any of the available network interfaces on the machine
     _servAddr.sin_port = htons(_port); // convert port from host byte order to network byte order
-    std::cout << GREEN << "Server configuration done successfully,Ready to bind" << RESET << std::endl;
+    std::cout << GREEN << "Server configuration done successfully, Ready to bind" << RESET << std::endl;
 }
 
 void    Server::bindServ()
 {
-    if (bind(_servSockFd, (struct sockaddr *) &_servAddr, sizeof(_servAddr)) == -1) // bind to the port using the addr struct
+    if (bind(_serverFd, (struct sockaddr *) &_servAddr, sizeof(_servAddr)) == -1) // bind to the port using the addr struct
     {
-        close(_servSockFd);
+        close(_serverFd);
         perror("Error");
         throw std::runtime_error("Binding Error");
     }
@@ -58,89 +58,109 @@ void    Server::bindServ()
 
 void    Server::listenServ()
 {
-    if (listen(_servSockFd, MAX_CONNECTIONS) == -1)
+    if (listen(_serverFd, MAX_CONNECTIONS) == -1)
     {
-        close(_servSockFd);
+        close(_serverFd);
         perror("Error");
         throw std::runtime_error("Listening Error");
     }
     std::cout << GREEN << "Server is listening successfully" << RESET << std::endl;
+    _polls[0].fd = _serverFd;
+    _polls[0].events = POLLIN;
+    _polls[0].revents = 0;
+    _fdsCounter++;
 }
 
-void    Server::acceptConnections()
+void    Server::acceptAndAddConnections()
 {
     socklen_t _servAddrLen = sizeof(_servAddr);
-    if ((_newSockFd = accept(_servSockFd, (struct sockaddr *) &_servAddr, &_servAddrLen)) == -1)
+    if ((_newFd = accept(_serverFd, (struct sockaddr *) &_servAddr, &_servAddrLen)) == -1)
     {
-        close(_servSockFd);
-        throw std::runtime_error("ACCEPT ERROR");
+        close(_serverFd);
+        perror("Error");
+        throw std::runtime_error("Accepting a new connection error");
     }
+    _polls[_fdsCounter].fd = _newFd;
+    _polls[_fdsCounter].events = POLLIN;
+    _fdsCounter++;
     std::cout << "Server accepted a connection" << std::endl;
-    send(_newSockFd, "WELCOME TO THE SERVER: ", 24, 0);
-    /* char buffer[100];
-    recv(_newSockFd, buffer, 100, 0);
-    size_t receivedBytes = strlen(buffer);
-    if (receivedBytes > 0 && buffer[receivedBytes - 1] == '\n') {
-        buffer[receivedBytes - 1] = '\0';
-    }
-    std::string userInput = buffer;
-    std::cout << userInput << std::endl;
-    std::cout << _password << std::endl;
-    if (userInput == _password)
-        std::cout << GREEN << "PASSWORD IS CORRECT" << RESET << std::endl;
-    else
-        std::cout << RED << "PASSWORD IS WRONG" << RESET << std::endl;*/
+    send(_newFd, "WELCOME TO THE SERVER\r\n", 24, 0);
 }
 
 void    Server::setAndRunServ()
 {
-    int i = 0;
-    
     setSockFd();
     setAddr();
     bindServ();
     listenServ();
-    _polls[i].fd = _servSockFd;
-    _polls[i].events = POLLIN;
-    _polls[i].revents = 0;
-    _usersCounter++;
-    _shouldRun = true;
     std::cout << GREEN << "Server is running" << RESET << std::endl;
-    while (_shouldRun)
+    while (shouldRun)   // The main server loop
     {
-        int numEvents = poll(_polls, _usersCounter, -1);
-        std::cout << numEvents << std::endl;
+       //printFdStruct();
+        int numEvents = poll(_polls, _fdsCounter, 3000);
+        std::cout << "NUMBER OF FD'S: " << _fdsCounter << std::endl;
+        std::cout << "NUMBER OF EVENTS: " << numEvents << std::endl;
         if (numEvents < 0)
         {
-            perror("Error:");
+            close(_serverFd);
+            perror("Error");
             throw std::runtime_error("Poll Error");
         }
         else if (numEvents > 0)
         {
-            std::cout << "POLL ALREADY MONITORING" << std::endl;
-            while (i < MAX_CONNECTIONS)
+            std::cout << "Poll is monitoring" << std::endl;
+            // Check existing connections looking for data to read //
+            for (int i = 0; i < _fdsCounter; i++)
             {
-                printFdStruct();
-                std::cout << "in the Connections loop" << std::endl;
-                if (_polls[i].revents == POLLIN)
+                // Check if someone is ready to read // 
+                if (_polls[i].revents & POLLIN)
                 {
-                    if (_polls[i].fd == _servSockFd)
+                    // if server we handle the new connection //
+                    if (_polls[i].fd == _serverFd)
                     {
-                        std::cout << "Server ready to receive" << std::endl;
-                        acceptConnections();
+                        std::cout << GREEN << "Server ready to accept" << RESET << std::endl;
+                        acceptAndAddConnections();
+                    }
+                    else        // it is just a regular client
+                    {
+                        std::cout << " I AM A REGULAR CLIENT " <<  std::endl;
+                        int bytes = recv(_polls[i].fd, _buffer, sizeof(_buffer), 0);
+                        std::cout << "MESSAGE FROM CLIENT: " << _buffer << std::endl;
+                        int senderFd = _polls[i].fd;
+                        
+                        // Connection closed or Error
+                        if (bytes <= 0)
+                        {
+                            if (!bytes)
+                                std::cout << RED << "Connections closed " << senderFd << " hung up" << RESET << std::endl;   
+                            else
+                                perror("Error");
+                            close(_polls[i].fd);
+                        }
+                        else // We got some good data from a client
+                        {
+                            for (int j = 0; j < _fdsCounter; j++) // send everyone
+                            {
+                                int destFd = _polls[j].fd;
+                                // Except the listener and ourselves
+                                if (destFd != senderFd) 
+                                {
+                                    if (send(destFd, _buffer, bytes, 0) == -1)
+                                        perror("send");
+                                    std::cout << "HERE IS THE SENDER " << _buffer << std::endl;
+                                }
+                            }
+                        }
                     }
                 }
-                i++;
             }
         }
-        else
-            std::cout << "TIME OUT" << std::endl;
     }
 }
 
 void    Server::printFdStruct()
 {
-    for (int i = 0; i < MAX_CONNECTIONS; i++)
+    for (int i = 0; i < _fdsCounter; i++)
     {
         std::cout << YELLOW << i << " Connection events: " << _polls[i].events << RESET << std::endl;
         std::cout << YELLOW << i << " Connection fd: " << _polls[i].fd << RESET << std::endl;
