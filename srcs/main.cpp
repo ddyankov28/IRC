@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 10:40:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/30 11:43:41 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/31 15:39:10 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int main(int ac, char **av)
         checkPort(av[1]);
         
         Server  irc(av[1], av[2]);
-
+        
         irc.setAndRunServ();
     }
     catch(std::exception& e)

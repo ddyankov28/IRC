@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/29 14:23:58 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/01/31 15:39:05 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <vector>
 # include <fcntl.h>
 # include <csignal>
+# include <ctime>
 
 # define URED "\033[4;31m"
 # define RED "\033[1;91m"
@@ -34,7 +35,8 @@
 # define RESET "\033[0m"
 # define LINE  std::cout << "-------------------------" << std::endl;
 
-# define MAX_CONNECTIONS 2
+# define MAX_CONNECTIONS 3
+# define CREATION_TIME (_creationTime) ("The creation date of the server is " + _creationTime + "\r\n")
 
 extern int shouldRun;
 

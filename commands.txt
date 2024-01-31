@@ -1,3 +1,7 @@
+Nickname length = maximal 9 characters
+
+
+
 Connection Registration
     1. Pass message
     2. Nick message
