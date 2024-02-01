@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/01 10:05:15 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/01 10:47:19 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ class   Server
         
         void        acceptAndAddConnections();
         std::string       creationTime();
+        void        setupErrorHandler(std::string msg);
         
 };
 

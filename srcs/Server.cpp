@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/01 10:32:02 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/01 10:51:42 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,12 @@ Server::~Server()
         delete _clients[i];
 }
 
+void    Server::setupErrorHandler(std::string msg)
+{
+    close(_serverFd);
+    perror("Error");
+    throw std::runtime_error(msg);
+}
 void    Server::setSockFd()
 {
     _serverFd = socket(PF_INET, SOCK_STREAM, 0); // get the fd for the server
@@ -38,11 +44,7 @@ void    Server::setAddr()
 {
     int opt = 1;
     if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1)
-    {
-        close(_serverFd);
-        perror("Error");
-        throw std::runtime_error("Setting socket options Error");
-    }
+        setupErrorHandler("Setting socket options Error");
     memset(&_servAddr, 0, sizeof(_servAddr));
     _servAddr.sin_family = AF_INET;  // ipv4
     _servAddr.sin_addr.s_addr = INADDR_ANY; // accept connections on any of the available network interfaces on the machine
@@ -53,22 +55,14 @@ void    Server::setAddr()
 void    Server::bindServ()
 {
     if (bind(_serverFd, (struct sockaddr *) &_servAddr, sizeof(_servAddr)) == -1) // bind to the port using the addr struct
-    {
-        close(_serverFd);
-        perror("Error");
-        throw std::runtime_error("Binding Error");
-    }
+        setupErrorHandler("Binding Error");
     std::cout << GREEN << "Server binded successfully" << RESET << std::endl;
 }
 
 void    Server::listenServ()
 {
     if (listen(_serverFd, MAX_CONNECTIONS) == -1)
-    {
-        close(_serverFd);
-        perror("Error");
-        throw std::runtime_error("Listening Error");
-    }
+        setupErrorHandler("Listening Error");
     std::cout << GREEN << "Server is listening successfully" << RESET << std::endl;
     _polls[0].fd = _serverFd;
     _polls[0].events = POLLIN | POLLOUT;
@@ -82,11 +76,7 @@ void    Server::acceptAndAddConnections()
     struct sockaddr_in  newConnection;
     socklen_t newConnectionLen = sizeof(newConnection);
     if ((newFd = accept(_serverFd, (struct sockaddr *) &newConnection, &newConnectionLen)) == -1)
-    {
-        close(_serverFd);
-        perror("Error");
-        throw std::runtime_error("Accepting a new connection error");
-    }
+        setupErrorHandler("Accepting a new connection Error");
     _polls[_fdsCounter].fd = newFd;
     _polls[_fdsCounter].events = POLLIN | POLLOUT;
     _polls[_fdsCounter].revents = 0;
@@ -115,11 +105,7 @@ void    Server::setAndRunServ()
     {
         int numEvents = poll(_polls, _fdsCounter, -1);
         if (numEvents < 0)
-        {
-            close(_serverFd);
-            perror("Error");
-            throw std::runtime_error("Poll Error");
-        }
+            setupErrorHandler("Poll Error");
         else if (numEvents > 0)
         {
             // Check existing connections looking for data to read //
