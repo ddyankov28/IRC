@@ -6,13 +6,13 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/01 10:09:20 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/01 14:54:50 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Client.hpp"
 
-Client::Client() : _userName(""), _nickName(""), _clientFd(0)
+Client::Client() : _userName(""), _nickName(""), _cliFd(0)
 {}
 
 Client::~Client()
@@ -20,7 +20,7 @@ Client::~Client()
 
 void    Client::setFd(int pollFd)
 {
-    _clientFd = pollFd;
+    _cliFd = pollFd;
 }
 
 void    Client::setUserName(std::string userName)
@@ -30,7 +30,7 @@ void    Client::setUserName(std::string userName)
 
 int Client::getFd()
 {
-    return _clientFd;
+    return _cliFd;
 }
 
 std::string Client::getUserName()

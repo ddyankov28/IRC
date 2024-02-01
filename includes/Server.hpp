@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/01 10:47:19 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/01 14:21:57 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,17 +35,19 @@ class   Server
         Server(char *av1, char *av2);
         ~Server();
 
+        // main loop //
         void        setAndRunServ();
+        void        acceptAndAddConnections();
+        void        handleEvents();
         // Setup the server //
         void        bindServ();
         void        setSockFd();
         void        setAddr();
         void        listenServ();
         void        printFdStruct();
-        
-        void        acceptAndAddConnections();
-        std::string       creationTime();
         void        setupErrorHandler(std::string msg);
+        
+        std::string       creationTime();
         
 };
 

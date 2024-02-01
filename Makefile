@@ -6,7 +6,7 @@
 #    By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/18 10:33:46 by ddyankov          #+#    #+#              #
-#    Updated: 2024/02/01 09:40:00 by ddyankov         ###   ########.fr        #
+#    Updated: 2024/02/01 13:45:32 by ddyankov         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,9 @@ COLOUR_END = \033[0m
 
 NAME = ircserv
 
-SRC = srcs/main.cpp srcs/Server.cpp srcs/Client.cpp
+SRC =   srcs/main.cpp \
+		srcs/Server.cpp srcs/SettingUpServer.cpp \
+		srcs/Client.cpp
 
 OBJ = $(patsubst srcs/%.cpp, obj/%.o, $(SRC))
 
