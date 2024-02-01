@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/01 15:17:56 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/01 15:24:55 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,12 @@ void    Server::handleEvents()
                 _buffer[bytes] = '\0';
                 std::string cliMsg = _buffer;
                 std::cout << cliMsg << cliMsg.size() << std::endl;
+                char *message = strtok((char *)cliMsg.c_str(), " ");
+                while (message != NULL)
+                {
+                    std::cout << message << std::endl;
+                    message = strtok(NULL, " ");
+                }
                 int senderFd = _polls[i].fd;
                 // Connection closed or Error
                 if (bytes <= 0)
