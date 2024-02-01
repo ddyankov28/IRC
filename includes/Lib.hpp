@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/31 15:39:05 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/01 09:42:16 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@
 # define LINE  std::cout << "-------------------------" << std::endl;
 
 # define MAX_CONNECTIONS 3
-# define CREATION_TIME (_creationTime) ("The creation date of the server is " + _creationTime + "\r\n")
 
 extern int shouldRun;
 

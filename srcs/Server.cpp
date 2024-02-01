@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/01/31 16:08:11 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/01 10:32:02 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,10 @@ Server::Server(char *av1, char *av2) : _port(atoi(av1)), _password(av2), _fdsCou
 }
 
 Server::~Server()
-{}
+{
+    for (unsigned int i = 0; i < _clients.size(); i++)
+        delete _clients[i];
+}
 
 void    Server::setSockFd()
 {
@@ -75,23 +78,30 @@ void    Server::listenServ()
 
 void    Server::acceptAndAddConnections()
 {
+    int newFd;
     struct sockaddr_in  newConnection;
     socklen_t newConnectionLen = sizeof(newConnection);
-    if ((_newFd = accept(_serverFd, (struct sockaddr *) &newConnection, &newConnectionLen)) == -1)
+    if ((newFd = accept(_serverFd, (struct sockaddr *) &newConnection, &newConnectionLen)) == -1)
     {
         close(_serverFd);
         perror("Error");
         throw std::runtime_error("Accepting a new connection error");
     }
-    _polls[_fdsCounter].fd = _newFd;
+    _polls[_fdsCounter].fd = newFd;
     _polls[_fdsCounter].events = POLLIN | POLLOUT;
     _polls[_fdsCounter].revents = 0;
     send(_polls[_fdsCounter].fd, "---Welcome to the 42_IRC Server---\ncreated on: ", 48, 0);
     send(_polls[_fdsCounter].fd, _creationTime.c_str(), _creationTime.size(), 0);
     _fdsCounter++;
     std::cout << "Server accepted a connection" << std::endl;
-    static int clientCount;
-    _clients[clientCount].setFd(_polls[_fdsCounter].fd); 
+    Client* newClient = new Client();
+    newClient->setFd(newFd);
+    newClient->setUserName("Deyan");
+    _clients.push_back(newClient);
+    static int num;
+    std::cout << _clients[num]->getFd() << std::endl;
+    std::cout << _clients[num]->getUserName() << std::endl;
+    num++;
 }
 
 void    Server::setAndRunServ()
@@ -103,8 +113,6 @@ void    Server::setAndRunServ()
     std::cout << GREEN << "Server is running" << RESET << std::endl;
     while (shouldRun)   // The main server loop
     {
-        //std::cout << _fdsCounter << std::endl;
-       //printFdStruct();
         int numEvents = poll(_polls, _fdsCounter, -1);
         if (numEvents < 0)
         {
