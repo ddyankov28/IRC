@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/08 14:31:06 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/08 15:04:19 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,6 @@ void    Client::checkCommand()
     _splitedCommand.clear();
     if (_registerSteps == 3)
         _isRegistered = true;
-    std::cout << "NICKNAME IS: " << _nickName << std::endl;
-    std::cout << "USERNAME IS: " << _userName << std::endl;
+    std::cout << "NICKNAME FOR USER WITH FD " << _fd << " IS: " << _nickName;
+    std::cout << "USERNAME FOR USER WITH FD " << _fd << " IS: " << _userName << std::endl;
 }

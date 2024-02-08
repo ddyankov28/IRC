@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/08 14:32:54 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/08 14:58:37 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void    Server::acceptAndAddConnections()
 
 void    Server::itsClient(int i)
 {
-    std::cout << "Message from Client: " << std::endl;
+    //std::cout << "Message from Client: " << std::endl;
     int bytes = recv(_polls[i].fd, _buffer, sizeof(_buffer) - 1, 0);
     _buffer[bytes] = '\0';
     //std::cout << _buffer << std::endl;
