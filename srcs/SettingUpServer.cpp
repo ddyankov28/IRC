@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 13:38:21 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/01 13:45:56 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/02 12:50:13 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void    Server::listenServ()
         setupErrorHandler("Listening Error");
     std::cout << GREEN << "Server is listening successfully" << RESET << std::endl;
     _polls[0].fd = _serverFd;
-    _polls[0].events = POLLIN | POLLOUT;
+    _polls[0].events = POLLIN;
     _polls[0].revents = 0;
     _fdsCounter++;
 }

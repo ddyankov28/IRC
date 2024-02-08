@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/01 14:21:57 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/07 12:03:46 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ class   Server
         void        setAndRunServ();
         void        acceptAndAddConnections();
         void        handleEvents();
+        void        itsClient();
         // Setup the server //
         void        bindServ();
         void        setSockFd();
@@ -47,7 +48,9 @@ class   Server
         void        printFdStruct();
         void        setupErrorHandler(std::string msg);
         
-        std::string       creationTime();
+        std::string creationTime();
+        Client*     getClient(int fd);
+        void        itsClient(int i);
         
 };
 

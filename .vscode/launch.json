@@ -6,7 +6,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/ircserv",
       "args": [
-        "6667",
+        "6668",
         "asd"
       ],
       "stopAtEntry": false,
