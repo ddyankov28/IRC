@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/08 14:58:37 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/19 09:43:10 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,20 +50,27 @@ void    Server::itsClient(int i)
 {
     //std::cout << "Message from Client: " << std::endl;
     int bytes = recv(_polls[i].fd, _buffer, sizeof(_buffer) - 1, 0);
-    _buffer[bytes] = '\0';
-    //std::cout << _buffer << std::endl;
-    //std::cout << "BufferLength: " << strlen(_buffer) << std::endl;
-    Client* currentCli = getClient(_polls[i].fd);
-    if (!currentCli)
-        throw std::runtime_error("Could not find Client");
-    currentCli->setPassword(_password);
-    currentCli->setCliCommand((std::string)_buffer);
-    //std::cout << "From Client Class: " << currentCli->getCliCommand();
-    //std::cout << "Size of msg: " << currentCli->getCliCommand().size() << std::endl;
-    currentCli->splitCommand();
-    currentCli->checkCommand();
-    if(currentCli->getIsRegistered())
-        send(currentCli->getFd(), "You are already registered\n", 28, 0);
+    if (!bytes)
+        std::cout << RED << "Connection to user has been lost" << RESET << std::endl;
+    else if (bytes == - 1)
+        std::cout << RED << "Failed to receive message" << RESET << std::endl;
+    else
+    {
+        _buffer[bytes] = '\0';
+        //std::cout << _buffer << std::endl;
+        //std::cout << "BufferLength: " << strlen(_buffer) << std::endl;
+        Client* currentCli = getClient(_polls[i].fd);
+        if (!currentCli)
+            throw std::runtime_error("Could not find Client");
+        currentCli->setPassword(_password);
+        currentCli->setCliCommand((std::string)_buffer);
+        //std::cout << "From Client Class: " << currentCli->getCliCommand();
+        //std::cout << "Size of msg: " << currentCli->getCliCommand().size() << std::endl;
+        currentCli->splitCommand();
+        currentCli->checkCommand();
+        if(currentCli->getIsRegistered())
+            send(currentCli->getFd(), "You are already registered\n", 28, 0);        
+    }
 
     
     
