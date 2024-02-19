@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/19 09:43:10 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/19 11:09:22 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,20 +48,43 @@ void    Server::acceptAndAddConnections()
 
 void    Server::itsClient(int i)
 {
+    std::cout << i << std::endl;
+    Client* currentCli = getClient(_polls[i].fd);
+    if (!currentCli)
+        throw std::runtime_error("Could not find Client");
     //std::cout << "Message from Client: " << std::endl;
     int bytes = recv(_polls[i].fd, _buffer, sizeof(_buffer) - 1, 0);
-    if (!bytes)
-        std::cout << RED << "Connection to user has been lost" << RESET << std::endl;
-    else if (bytes == - 1)
-        std::cout << RED << "Failed to receive message" << RESET << std::endl;
+    // Connection closed or Error
+    if (bytes <= 0)
+    {
+        if (!bytes)
+            std::cout << RED << "Connection " << _polls[i].fd << " was closed" << RESET << std::endl;
+        else
+            perror("Error");
+        close(_polls[i].fd);
+        _fdsCounter--;
+        //std::cout << "HERE " << std::endl;
+        std::vector<Client *>::iterator it = _clients.begin();
+        int cl = 0;
+        while (it != _clients.end())
+        {
+            //std::cout << "ITERATOR: " << (*it)->getFd() << "\nCURRENTCLI: " << currentCli->getFd() << std::endl;
+            if ((*it)->getFd() == currentCli->getFd())
+            {
+                close(currentCli->getFd());
+                delete _clients[cl];
+                _clients.erase(it);
+                break ;
+            }
+            it++;
+            cl++;
+        }
+    }
     else
     {
         _buffer[bytes] = '\0';
         //std::cout << _buffer << std::endl;
         //std::cout << "BufferLength: " << strlen(_buffer) << std::endl;
-        Client* currentCli = getClient(_polls[i].fd);
-        if (!currentCli)
-            throw std::runtime_error("Could not find Client");
         currentCli->setPassword(_password);
         currentCli->setCliCommand((std::string)_buffer);
         //std::cout << "From Client Class: " << currentCli->getCliCommand();
@@ -74,15 +97,7 @@ void    Server::itsClient(int i)
 
     
     
-    // Connection closed or Error
-    if (bytes <= 0)
-    {
-        if (!bytes)
-            std::cout << RED << "Connection " << _polls[i].fd << " was closed" << RESET << std::endl;   
-        else
-            perror("Error");
-        close(_polls[i].fd);
-    }
+
 }
 
 void    Server::handleEvents()
