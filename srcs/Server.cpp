@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/19 11:09:22 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:17:31 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,13 @@ void    Server::acceptAndAddConnections()
 
 void    Server::itsClient(int i)
 {
-    std::cout << i << std::endl;
+    char buffer[512];
+    std::string buff;
     Client* currentCli = getClient(_polls[i].fd);
+    
     if (!currentCli)
         throw std::runtime_error("Could not find Client");
-    //std::cout << "Message from Client: " << std::endl;
-    int bytes = recv(_polls[i].fd, _buffer, sizeof(_buffer) - 1, 0);
+    int bytes = recv(_polls[i].fd, buffer, sizeof(buffer), 0);
     // Connection closed or Error
     if (bytes <= 0)
     {
@@ -63,12 +64,10 @@ void    Server::itsClient(int i)
             perror("Error");
         close(_polls[i].fd);
         _fdsCounter--;
-        //std::cout << "HERE " << std::endl;
         std::vector<Client *>::iterator it = _clients.begin();
         int cl = 0;
         while (it != _clients.end())
         {
-            //std::cout << "ITERATOR: " << (*it)->getFd() << "\nCURRENTCLI: " << currentCli->getFd() << std::endl;
             if ((*it)->getFd() == currentCli->getFd())
             {
                 close(currentCli->getFd());
@@ -82,22 +81,27 @@ void    Server::itsClient(int i)
     }
     else
     {
-        _buffer[bytes] = '\0';
-        //std::cout << _buffer << std::endl;
-        //std::cout << "BufferLength: " << strlen(_buffer) << std::endl;
-        currentCli->setPassword(_password);
-        currentCli->setCliCommand((std::string)_buffer);
-        //std::cout << "From Client Class: " << currentCli->getCliCommand();
-        //std::cout << "Size of msg: " << currentCli->getCliCommand().size() << std::endl;
-        currentCli->splitCommand();
-        currentCli->checkCommand();
-        if(currentCli->getIsRegistered())
-            send(currentCli->getFd(), "You are already registered\n", 28, 0);        
+        buffer[bytes] = '\0';
+        buff = buffer;
+        if (buff.find_first_of("\r\n") == std::string::npos)
+        {
+            std::cout << "THERE WAS CTRL + D PRESSED " << std::endl;
+            currentCli->setBuff(currentCli->getBuff() + buff);
+            std::cout << "After ctrl D "<< currentCli->getBuff() << std::endl;
+        }
+        else
+        {
+            currentCli->setBuff(currentCli->getBuff() + buff);
+            std::cout << "TO WORK LATER WITH " << currentCli->getBuff() << std::endl;
+            std::cout << "THERE WAS ENTER PRESSED" << std::endl;
+            currentCli->setCliCommand(currentCli->getBuff());
+            std::cout << "111" << currentCli->getBuff() << std::endl;
+            currentCli->setPassword(_password);
+            currentCli->splitCommand();
+            currentCli->checkCommand();
+            currentCli->setBuff("");
+        }
     }
-
-    
-    
-
 }
 
 void    Server::handleEvents()

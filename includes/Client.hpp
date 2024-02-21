@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/08 14:24:40 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/21 10:37:27 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,15 +19,16 @@ class Client
 {
     private:
         Client();
+        int                         _fd;
         std::string                 _userName;
         std::string                 _nickName;
-        int                         _fd;
-        std::string                 _command;
-        bool                        _isRegistered;
-        std::vector<std::string>    _splitedCommand;
         std::string                 _password;
+        std::string                 _command;
+        std::string                 _buff;
+        bool                        _isRegistered;
         int                         _registerSteps;
         bool                        _passIsCorrect;
+        std::vector<std::string>    _splitedCommand;
     public:
         Client(int cliFd);
         ~Client();
@@ -37,14 +38,18 @@ class Client
     void    setNickName(std::string& nickName);
     void    setCliCommand(std::string msg);
     void    setPassword(std::string pass);
-    void    checkCommand();
-    void    splitCommand();
-    void    checkIfRegistered();
+    void    setBuff(std::string add);
+    
     int         getFd();
     std::string getUserName();
+    std::string getNickName();
     std::string getCliCommand();
+    std::string getBuff();
     bool        getIsRegistered();
         
+    void    checkIfRegistered();
+    void    checkCommand();
+    void    splitCommand();
 };
 
 # endif

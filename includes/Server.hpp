@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/07 12:03:46 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/20 15:20:12 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ class   Server
         struct sockaddr_in  _servAddr;
         pollfd              _polls[MAX_CONNECTIONS];
         int                 _fdsCounter;
-        char                _buffer[256];
         std::vector<Client *> _clients;
     public:
         Server(char *av1, char *av2);

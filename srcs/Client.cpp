@@ -6,13 +6,13 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/08 15:04:19 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/21 11:06:45 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Client.hpp"
 
-Client::Client(int cliFd) : _userName(""), _nickName(""), _fd(cliFd), _isRegistered(false), _registerSteps(0), _passIsCorrect(false)
+Client::Client(int cliFd) : _fd(cliFd), _userName(""), _nickName(""), _command(""), _buff(""), _isRegistered(false), _registerSteps(0), _passIsCorrect(false)
 {}
 
 Client::~Client()
@@ -48,6 +48,11 @@ std::string Client::getUserName()
     return _userName;
 }
 
+std::string Client::getNickName()
+{
+    return _nickName;
+}
+
 std::string Client::getCliCommand()
 {
     return _command;
@@ -57,6 +62,17 @@ bool    Client::getIsRegistered()
 {
     return _isRegistered;
 }
+
+void    Client::setBuff(std::string add)
+{
+    _buff = add;
+}
+
+std::string Client::getBuff()
+{
+    return _buff;    
+}
+
 void    Client::splitCommand()
 {
     std::istringstream  iss(_command);
@@ -64,7 +80,6 @@ void    Client::splitCommand()
     
     while (iss >> word)
         _splitedCommand.push_back(word);
-    
     /*std::vector<std::string>::iterator it = _splitedCommand.begin();
     while (it != _splitedCommand.end())
     {
@@ -77,6 +92,7 @@ void    Client::setPassword(std::string pass)
 {
     _password = pass;
 }
+
 
 void    Client::checkCommand()
 {
@@ -103,11 +119,15 @@ void    Client::checkCommand()
     }
     else if (_splitedCommand[0] == "PASS" && _passIsCorrect == true)
         send(_fd, "Your pass is already accepted\n", 31, 0);
-    else
+    else if (_isRegistered == false)
         send(_fd, "Wrong command, you have to register yourself\n", 46, 0);
     _splitedCommand.clear();
     if (_registerSteps == 3)
+    {
         _isRegistered = true;
+        _registerSteps++;
+        send(_fd, "You are already registered\n", 28, 0);
+    }
     std::cout << "NICKNAME FOR USER WITH FD " << _fd << " IS: " << _nickName;
     std::cout << "USERNAME FOR USER WITH FD " << _fd << " IS: " << _userName << std::endl;
 }
