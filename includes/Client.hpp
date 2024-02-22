@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 11:59:26 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 16:02:44 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ class Client
     void    checkIfRegistered();
     void    checkCommand();
     void    splitCommand();
+    void    joinChannels();
 };
 
 # endif

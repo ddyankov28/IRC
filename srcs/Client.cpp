@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 14:00:08 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 16:32:47 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,24 +116,57 @@ void    Client::checkFeatures()
                 while (i <= _splitedCommand.size())
                 {
                     send(Reciever->getFd(), _splitedCommand[i].c_str() , _splitedCommand[i].size(), 0);
-                    if (i < _splitedCommand.size())
+                    if (i < _splitedCommand.size() - 1)
                         send(Reciever->getFd(), " ", 1, 0);
                     i++;
                 }
+                send(Reciever->getFd(), "\n", 1, 0);
             }
         }
-        // else if (_splitedCommand[0] == "JOIN")
-        // {
-            
-        // }
-        // else
-        // {
-            
-        // }
+        else if (_splitedCommand[0] == "JOIN")
+        {
+            joinChannels();
+        }
     }
     _splitedCommand.clear();
-
 }
+
+void    Client::joinChannels()
+{
+    if (_splitedCommand[1][0] == '#')
+        {
+
+            try
+            {
+                Channel newChannel =_server.getChannelbyName(_splitedCommand[1]);
+                // if (newChannel.getisInviteChannel())
+                // {
+                    
+                // }
+                if (newChannel.getisKeyChannel() && _splitedCommand.size() > 2)
+                {
+                    
+                }  
+                else if (!newChannel.getisKeyChannel())
+                {
+                    newChannel.getMembers().push_back(this);
+                    std::cout << "EXISTING" << newChannel.getMembers()[0]->getNickName();
+                } 
+            }
+            catch (std::exception& e)
+            {
+                Channel newChannel(_splitedCommand[1], _server);
+                _server.getChannels().push_back(newChannel);
+                newChannel.getMembers().push_back(this);
+                newChannel.getOperators().push_back(this);
+                std::cout << "NICKNAME: " << getNickName() << std::endl;
+                std::cout << newChannel.getMembers().size() << std::endl;
+                std::cout << "NEW " << newChannel.getMembers()[0]->getNickName() << std::endl;
+                std::cout << "NEW " << newChannel.getOperators()[0]->getNickName() << std::endl;
+            }          
+        }
+}
+
 
 void    Client::checkCommand()
 {

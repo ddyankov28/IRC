@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 12:00:00 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 16:16:15 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,10 @@
 
 # include "Lib.hpp"
 # include "Client.hpp"
+# include "Channel.hpp"
 
 class   Client;
+class   Channel;
 
 class   Server
 {
@@ -30,6 +32,7 @@ class   Server
         pollfd              _polls[MAX_CONNECTIONS];
         int                 _fdsCounter;
         std::vector<Client *> _clients;
+        std::vector<Channel> _channels;
     public:
         Server(char *av1, char *av2);
         ~Server();
@@ -50,6 +53,8 @@ class   Server
         std::string creationTime();
         Client*     getClient(int fd);
         Client*     getClientByNick(std::string Nick);
+        Channel&    getChannelbyName(std::string Channel);
+        std::vector<Channel>   getChannels();
         void        itsClient(int i);
         
 };

@@ -6,7 +6,7 @@
 #    By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/01/18 10:33:46 by ddyankov          #+#    #+#              #
-#    Updated: 2024/02/01 13:45:32 by ddyankov         ###   ########.fr        #
+#    Updated: 2024/02/22 16:06:41 by ddyankov         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,7 +18,8 @@ NAME = ircserv
 
 SRC =   srcs/main.cpp \
 		srcs/Server.cpp srcs/SettingUpServer.cpp \
-		srcs/Client.cpp
+		srcs/Client.cpp \
+		srcs/Channel.cpp
 
 OBJ = $(patsubst srcs/%.cpp, obj/%.o, $(SRC))
 
