@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/21 11:17:31 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 09:58:49 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,10 +92,9 @@ void    Server::itsClient(int i)
         else
         {
             currentCli->setBuff(currentCli->getBuff() + buff);
-            std::cout << "TO WORK LATER WITH " << currentCli->getBuff() << std::endl;
             std::cout << "THERE WAS ENTER PRESSED" << std::endl;
             currentCli->setCliCommand(currentCli->getBuff());
-            std::cout << "111" << currentCli->getBuff() << std::endl;
+            std::cout << "[ Message from Client ] " << currentCli->getBuff() << std::endl;
             currentCli->setPassword(_password);
             currentCli->splitCommand();
             currentCli->checkCommand();
