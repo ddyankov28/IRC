@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/21 10:37:27 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 11:59:26 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define CLIENT_HPP
 
 # include "Lib.hpp"
+# include "Server.hpp"
+
+class Server;
 
 class Client
 {
@@ -29,8 +32,9 @@ class Client
         int                         _registerSteps;
         bool                        _passIsCorrect;
         std::vector<std::string>    _splitedCommand;
+        Server&                     _server;
     public:
-        Client(int cliFd);
+        Client(int cliFd, Server& server);
         ~Client();
     
     void    setFd(int pollFd);
@@ -46,7 +50,8 @@ class Client
     std::string getCliCommand();
     std::string getBuff();
     bool        getIsRegistered();
-        
+    
+    void    checkFeatures();
     void    checkIfRegistered();
     void    checkCommand();
     void    splitCommand();

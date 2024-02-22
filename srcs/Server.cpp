@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 10:35:08 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 12:13:50 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ void    Server::acceptAndAddConnections()
     send(_polls[_fdsCounter].fd, _creationTime.c_str(), _creationTime.size(), 0);
     send(_polls[_fdsCounter].fd, REGISTER, sizeof(REGISTER), 0);
     std::cout << "Server accepted a connection" << std::endl;
-    Client* newClient = new Client(_polls[_fdsCounter].fd);
+    Client* newClient = new Client(_polls[_fdsCounter].fd, *this);
     _clients.push_back(newClient);
     std::cout << "Client was added" << std::endl;
     _fdsCounter++;
@@ -98,6 +98,7 @@ void    Server::itsClient(int i)
             currentCli->setPassword(_password);
             currentCli->splitCommand();
             currentCli->checkCommand();
+            currentCli->checkFeatures();
             currentCli->setBuff("");
         }
     }
@@ -169,6 +170,18 @@ Client* Server::getClient(int fd)
     while (it != _clients.end())
     {
         if ((*it)->getFd() == fd)
+            return *it;
+        it++;
+    }   
+    return NULL;
+}
+
+Client* Server::getClientByNick(std::string Nick)
+{
+    std::vector<Client *>::iterator it = _clients.begin();
+    while (it != _clients.end())
+    {
+        if ((*it)->getNickName() == Nick)
             return *it;
         it++;
     }   

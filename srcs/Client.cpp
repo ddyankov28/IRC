@@ -6,13 +6,13 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 10:21:35 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 12:15:46 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Client.hpp"
 
-Client::Client(int cliFd) : _fd(cliFd), _userName(""), _nickName(""), _command(""), _buff(""), _isRegistered(false), _registerSteps(0), _passIsCorrect(false)
+Client::Client(int cliFd, Server& server) : _fd(cliFd), _userName(""), _nickName(""), _command(""), _buff(""), _isRegistered(false), _registerSteps(0), _passIsCorrect(false), _server(server)
 {}
 
 Client::~Client()
@@ -85,7 +85,9 @@ void    Client::splitCommand()
     {
         std::cout << *it << std::endl;
         it++;
-    }*/
+    }
+    std::cout << _splitedCommand.size() << std::endl;*/
+
 }
 
 void    Client::setPassword(std::string pass)
@@ -93,6 +95,34 @@ void    Client::setPassword(std::string pass)
     _password = pass;
 }
 
+void    Client::checkFeatures()
+{
+    if ((_splitedCommand[0] == "PRIVMSG"  && _splitedCommand.size() >= 3) || (_splitedCommand[0] == "JOIN" && _splitedCommand.size() >= 2) || (_splitedCommand[0] == "QUIT"))
+    {
+        if (_splitedCommand[0] == "PRIVMSG")
+        {
+            Client* Reciever = _server.getClientByNick(_splitedCommand[1]);
+            if (!Reciever)
+            {
+                send(_fd, "No such Nick\n", 14, 0);
+            }
+            else
+            {
+                send(Reciever->getFd(), _splitedCommand[2].c_str(), _splitedCommand[2].size(), 0);
+            }
+        }
+        // else if (_splitedCommand[0] == "JOIN")
+        // {
+            
+        // }
+        // else
+        // {
+            
+        // }
+    }
+    _splitedCommand.clear();
+
+}
 
 void    Client::checkCommand()
 {
@@ -100,7 +130,7 @@ void    Client::checkCommand()
     if (((_splitedCommand[0] == "PASS" && _passIsCorrect == false) || _splitedCommand[0] == "NICK" || _splitedCommand[0] == "USER") && _splitedCommand.size() == 2)
     {
         if (_splitedCommand[0] == "PASS" && _splitedCommand[1] != _password)
-            send(_fd, "Password is incorrect!\n", 24, 0);
+            send(_fd, "⛔️Password is incorrect⛔️\n", 35, 0);
         else if (_splitedCommand[0] == "PASS" && _splitedCommand[1] == _password)
         {
             _registerSteps++;
@@ -121,7 +151,6 @@ void    Client::checkCommand()
         send(_fd, "✅You already provided a correct password✅\n", 47, 0);
     else if (_isRegistered == false)
         send(_fd, "🚫Wrong command, you have to register yourself🚫\n", 54, 0);
-    _splitedCommand.clear();
     if (_registerSteps == 3)
     {
         _isRegistered = true;
