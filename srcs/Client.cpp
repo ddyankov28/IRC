@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/21 11:06:45 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 10:13:10 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,6 @@ void    Client::checkCommand()
         _registerSteps++;
         send(_fd, "You are already registered\n", 28, 0);
     }
-    std::cout << "NICKNAME FOR USER WITH FD " << _fd << " IS: " << _nickName;
-    std::cout << "USERNAME FOR USER WITH FD " << _fd << " IS: " << _userName << std::endl;
+    //std::cout << "NICKNAME FOR USER WITH FD " << _fd << " IS: " << _nickName;
+    //std::cout << "USERNAME FOR USER WITH FD " << _fd << " IS: " << _userName << std::endl;
 }

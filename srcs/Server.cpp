@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 09:58:49 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 10:13:53 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,16 +85,16 @@ void    Server::itsClient(int i)
         buff = buffer;
         if (buff.find_first_of("\r\n") == std::string::npos)
         {
-            std::cout << "THERE WAS CTRL + D PRESSED " << std::endl;
+            // std::cout << "THERE WAS CTRL + D PRESSED " << std::endl;
             currentCli->setBuff(currentCli->getBuff() + buff);
             std::cout << "After ctrl D "<< currentCli->getBuff() << std::endl;
         }
         else
         {
             currentCli->setBuff(currentCli->getBuff() + buff);
-            std::cout << "THERE WAS ENTER PRESSED" << std::endl;
+            // std::cout << "THERE WAS ENTER PRESSED" << std::endl;
             currentCli->setCliCommand(currentCli->getBuff());
-            std::cout << "[ Message from Client ] " << currentCli->getBuff() << std::endl;
+            std::cout << "---[ Message from Client ] ---" << std::endl << currentCli->getBuff() << std::endl;
             currentCli->setPassword(_password);
             currentCli->splitCommand();
             currentCli->checkCommand();
