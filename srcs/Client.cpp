@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 12:15:46 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 14:00:08 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,11 +104,22 @@ void    Client::checkFeatures()
             Client* Reciever = _server.getClientByNick(_splitedCommand[1]);
             if (!Reciever)
             {
+                std::string msg = "@localhost: ";
+                send(getFd(), msg.c_str(), msg.size(), 0);
                 send(_fd, "No such Nick\n", 14, 0);
             }
             else
             {
-                send(Reciever->getFd(), _splitedCommand[2].c_str(), _splitedCommand[2].size(), 0);
+                std::string msg = getUserName() + "!" + getNickName() + "@localhost: ";
+                send(Reciever->getFd(), msg.c_str(), msg.size(), 0);
+                size_t i = 2;
+                while (i <= _splitedCommand.size())
+                {
+                    send(Reciever->getFd(), _splitedCommand[i].c_str() , _splitedCommand[i].size(), 0);
+                    if (i < _splitedCommand.size())
+                        send(Reciever->getFd(), " ", 1, 0);
+                    i++;
+                }
             }
         }
         // else if (_splitedCommand[0] == "JOIN")

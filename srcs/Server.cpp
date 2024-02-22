@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 12:13:50 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 14:26:51 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,16 @@ void    Server::setAndRunServ()
     {
         int numEvents = poll(_polls, _fdsCounter, -1);
         if (numEvents < 0)
+        {
+            std::vector<Client *>::iterator it = _clients.begin();
+            while (it != _clients.end())
+            {
+                send((*it)->getFd(), "QUIT :Client", 13, 0);
+                close((*it)->getFd());
+                it++;
+            }   
             setupErrorHandler("Poll Error");
+        }
         else if (numEvents > 0)
             handleEvents();
     }
