@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 10:13:10 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 10:21:35 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,15 +118,15 @@ void    Client::checkCommand()
         }
     }
     else if (_splitedCommand[0] == "PASS" && _passIsCorrect == true)
-        send(_fd, "Your pass is already accepted\n", 31, 0);
+        send(_fd, "✅You already provided a correct password✅\n", 47, 0);
     else if (_isRegistered == false)
-        send(_fd, "Wrong command, you have to register yourself\n", 46, 0);
+        send(_fd, "🚫Wrong command, you have to register yourself🚫\n", 54, 0);
     _splitedCommand.clear();
     if (_registerSteps == 3)
     {
         _isRegistered = true;
         _registerSteps++;
-        send(_fd, "You are already registered\n", 28, 0);
+        send(_fd, "✅You are already registered✅\n", 34, 0);
     }
     //std::cout << "NICKNAME FOR USER WITH FD " << _fd << " IS: " << _nickName;
     //std::cout << "USERNAME FOR USER WITH FD " << _fd << " IS: " << _userName << std::endl;

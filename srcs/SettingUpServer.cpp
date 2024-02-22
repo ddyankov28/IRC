@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 13:38:21 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/02 12:50:13 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 10:33:21 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void    Server::setSockFd()
     _serverFd = socket(PF_INET, SOCK_STREAM, 0); // get the fd for the server
     if (_serverFd == -1)
         throw std::runtime_error("Socket Error");
-    std::cout << GREEN << "Socket created successfully" << RESET << std::endl;
+    std::cout << GREEN << "🔌---Socket created successfully---🔌" << RESET << std::endl;
 }
 
 void    Server::setAddr()
@@ -35,21 +35,21 @@ void    Server::setAddr()
     _servAddr.sin_family = AF_INET;  // ipv4
     _servAddr.sin_addr.s_addr = INADDR_ANY; // accept connections on any of the available network interfaces on the machine
     _servAddr.sin_port = htons(_port); // convert port from host byte order to network byte order
-    std::cout << GREEN << "Server configuration done successfully, Ready to bind" << RESET << std::endl;
+    std::cout << GREEN << "⚙️ ---Server configuration done successfully, ready to bind--- ⚙️" << RESET << std::endl;
 }
 
 void    Server::bindServ()
 {
     if (bind(_serverFd, (struct sockaddr *) &_servAddr, sizeof(_servAddr)) == -1) // bind to the port using the addr struct
         setupErrorHandler("Binding Error");
-    std::cout << GREEN << "Server binded successfully" << RESET << std::endl;
+    std::cout << GREEN << "🔗---Server binded successfully---🔗" << RESET << std::endl;
 }
 
 void    Server::listenServ()
 {
     if (listen(_serverFd, MAX_CONNECTIONS) == -1)
         setupErrorHandler("Listening Error");
-    std::cout << GREEN << "Server is listening successfully" << RESET << std::endl;
+    std::cout << GREEN << "📡---Server is listening successfully---📡" << RESET << std::endl;
     _polls[0].fd = _serverFd;
     _polls[0].events = POLLIN;
     _polls[0].revents = 0;

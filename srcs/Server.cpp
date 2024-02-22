@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 10:13:53 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 10:35:08 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void    Server::acceptAndAddConnections()
     _polls[_fdsCounter].fd = newFd;
     _polls[_fdsCounter].events = POLLIN;
     _polls[_fdsCounter].revents = 0;
-    send(_polls[_fdsCounter].fd, "---Welcome to the 42_IRC Server---\ncreated on: ", 48, 0);
+    send(_polls[_fdsCounter].fd, "👋--- Welcome to the 42_IRC Server ---👋\nCreated on ", 57, 0);
     send(_polls[_fdsCounter].fd, _creationTime.c_str(), _creationTime.size(), 0);
     send(_polls[_fdsCounter].fd, REGISTER, sizeof(REGISTER), 0);
     std::cout << "Server accepted a connection" << std::endl;
@@ -131,7 +131,7 @@ void    Server::setAndRunServ()
     setAddr();
     bindServ();
     listenServ();
-    std::cout << GREEN << "Server is running" << RESET << std::endl;
+    std::cout << GREEN << "🏃---Server is running---🏃" << RESET << std::endl;
     while (shouldRun)   // The main server loop
     {
         int numEvents = poll(_polls, _fdsCounter, -1);

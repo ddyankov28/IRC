@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/20 15:53:26 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/22 10:36:41 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@
 # define LINE  std::cout << "-------------------------" << std::endl;
 
 # define MAX_CONNECTIONS 3
-# define REGISTER "You are connected but not registered yet\r\n"
+# define REGISTER "🤝You are connected but not registered yet🤝\r\n"
 
 extern int shouldRun;
 
