@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/23 13:33:12 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/23 15:11:45 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,8 +125,55 @@ void    Client::checkFeatures()
         }
         else if (_splitedCommand[0] == "JOIN")
             joinChannels();
+        
     }
+    else if (_splitedCommand[0] == "KICK")
+            kickUsers();
     _splitedCommand.clear();
+}
+
+void    Client::kickUsers()
+{
+    try
+    {
+        Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
+        std::vector<Client *>::iterator it = currentChannel.getOperators().begin();
+        while (it != currentChannel.getOperators().end())
+        {
+            if ((*it)->getNickName() == _nickName) //you are operator
+            {
+                std::vector<Client *>::iterator itMembers = currentChannel.getMembers().begin();
+                while (itMembers != currentChannel.getMembers().end())
+                {
+                    if ((*itMembers)->getNickName() == _splitedCommand[2])
+                    {
+                        send((*itMembers)->getFd(), "You were kicked out of the channel\n", 36, 0);
+                        currentChannel.getMembers().erase(itMembers);
+                        std::vector<Client *>::iterator itOperators = currentChannel.getOperators().begin();
+                        while (itOperators != currentChannel.getOperators().end())
+                        {
+                            if ((*itOperators)->getNickName() == _splitedCommand[2])
+                                currentChannel.getOperators().erase(itOperators);
+                            else
+                                ++itOperators;
+                        }    
+                        return ;
+                    }
+                    else
+                        ++itMembers;   
+                }
+                send(_fd, "There is no such member in the channel\n", 40, 0);
+                return ;
+            }
+            it++;
+        }
+        send(_fd, "You are not an operator\n", 25, 0);
+        
+    }
+    catch (std::exception& e)
+    {
+        send(_fd, "There is no such channel\n", 26, 0);
+    }
 }
 
 void    Client::joinChannels()
@@ -169,7 +216,7 @@ void    Client::joinChannels()
 void    Client::checkCommand()
 {
     //std::cout << _password << std::endl;
-    if (((_splitedCommand[0] == "PASS" && _passIsCorrect == false) || _splitedCommand[0] == "NICK" || _splitedCommand[0] == "USER") && _splitedCommand.size() == 2)
+    if (((_splitedCommand[0] == "PASS" && _passIsCorrect == false) || _splitedCommand[0] == "NICK" || _splitedCommand[0] == "USER") && _splitedCommand.size() >= 2)
     {
         if (_splitedCommand[0] == "PASS" && _splitedCommand[1] != _password)
             send(_fd, "⛔️Password is incorrect⛔️\n", 35, 0);

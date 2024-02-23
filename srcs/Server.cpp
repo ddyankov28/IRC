@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/23 12:22:04 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/23 15:05:58 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,10 @@ void    Server::itsClient(int i)
     if (bytes <= 0)
     {
         if (!bytes)
+        {
+            removeClient(_polls[i].fd);
             std::cout << RED << "Connection " << _polls[i].fd << " was closed" << RESET << std::endl;
+        }
         else
             perror("Error");
         close(_polls[i].fd);
@@ -101,6 +104,42 @@ void    Server::itsClient(int i)
             currentCli->checkFeatures();
             currentCli->setBuff("");
         }
+    }
+}
+
+void    Server::removeClient(int fd)
+{
+    std::vector<Client *>::iterator itClients = _clients.begin();
+    while (itClients != _clients.end())
+    {
+        if ((*itClients)->getFd() == fd)
+        {
+            for (size_t i = 0; i < _channels.size(); i++)
+            {
+                std::vector<Client *>::iterator itOperators = _channels[i].getOperators().begin();
+                while (itOperators != _channels[i].getOperators().end())
+                {
+                    if ((*itOperators)->getNickName() == (*itClients)->getNickName())
+                        _channels[i].getOperators().erase(itOperators);
+                    else
+                        ++itOperators;
+                }
+                std::vector<Client *>::iterator itMembers = _channels[i].getMembers().begin();
+                while (itMembers != _channels[i].getMembers().end())
+                {
+                    if ((*itMembers)->getNickName() == (*itClients)->getNickName())
+                    {
+                        std::cout << RED << "User " << (*itClients)->getNickName() << " was removed from the channel" << RESET << std::endl;
+                        _channels[i].getMembers().erase(itMembers);
+                    }
+                    else
+                        ++itMembers;
+                }      
+            }
+            _clients.erase(itClients);
+        }
+        else
+           ++itClients;
     }
 }
 

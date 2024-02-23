@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/23 11:56:56 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/23 13:52:44 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ class Client
     void    checkCommand();
     void    splitCommand();
     void    joinChannels();
+    void    kickUsers();
 };
 
 # endif
