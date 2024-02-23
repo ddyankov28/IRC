@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 16:32:47 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/23 13:33:12 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,7 @@ void    Client::checkFeatures()
             {
                 std::string msg = "@localhost: ";
                 send(getFd(), msg.c_str(), msg.size(), 0);
-                send(_fd, "No such Nick\n", 14, 0);
+                send(_fd, "⛔️No such Nick⛔️\n", 26, 0);
             }
             else
             {
@@ -124,9 +124,7 @@ void    Client::checkFeatures()
             }
         }
         else if (_splitedCommand[0] == "JOIN")
-        {
             joinChannels();
-        }
     }
     _splitedCommand.clear();
 }
@@ -135,34 +133,34 @@ void    Client::joinChannels()
 {
     if (_splitedCommand[1][0] == '#')
         {
-
             try
             {
-                Channel newChannel =_server.getChannelbyName(_splitedCommand[1]);
+                Channel& currentChannel =_server.getChannelbyName(_splitedCommand[1]);
                 // if (newChannel.getisInviteChannel())
                 // {
                     
                 // }
-                if (newChannel.getisKeyChannel() && _splitedCommand.size() > 2)
+                if (currentChannel.getisKeyChannel() && _splitedCommand.size() > 2)
                 {
                     
                 }  
-                else if (!newChannel.getisKeyChannel())
+                else if (!currentChannel.getisKeyChannel())
                 {
-                    newChannel.getMembers().push_back(this);
-                    std::cout << "EXISTING" << newChannel.getMembers()[0]->getNickName();
+                    if (currentChannel.getMemberByNick(_nickName))
+                    {
+                        send(_fd, "⛔️Nick already in channel⛔️\n", 37, 0);
+                        return ;
+                    }
+                    currentChannel.getMembers().push_back(this);
                 } 
             }
             catch (std::exception& e)
             {
                 Channel newChannel(_splitedCommand[1], _server);
-                _server.getChannels().push_back(newChannel);
+
                 newChannel.getMembers().push_back(this);
                 newChannel.getOperators().push_back(this);
-                std::cout << "NICKNAME: " << getNickName() << std::endl;
-                std::cout << newChannel.getMembers().size() << std::endl;
-                std::cout << "NEW " << newChannel.getMembers()[0]->getNickName() << std::endl;
-                std::cout << "NEW " << newChannel.getOperators()[0]->getNickName() << std::endl;
+                _server.getChannels().push_back(newChannel);
             }          
         }
 }
@@ -182,11 +180,21 @@ void    Client::checkCommand()
         }
         else if (_splitedCommand[0] == "NICK")
         {
+            if (_server.getClientByNick(_splitedCommand[1]))
+            {
+                send(_fd, "⛔️Nickname already in use⛔️\n", 37, 0);
+                return ;
+            }
             setNickName(_splitedCommand[1]);
             _registerSteps++;
         }
         else if (_splitedCommand[0] == "USER")
         {
+            if (_server.getClientByUser(_splitedCommand[1]))
+            {
+                send(_fd, "Username already in use\n", 24, 0);
+                return ;
+            }
             setUserName(_splitedCommand[1]);
             _registerSteps++;
         }
@@ -204,3 +212,4 @@ void    Client::checkCommand()
     //std::cout << "NICKNAME FOR USER WITH FD " << _fd << " IS: " << _nickName;
     //std::cout << "USERNAME FOR USER WITH FD " << _fd << " IS: " << _userName << std::endl;
 }
+

@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 16:30:03 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:08:25 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,10 @@ class Channel
         std::string                 getChannelName();
         bool                        getisInviteChannel();
         bool                        getisKeyChannel();
-        std::vector<Client *>         getMembers();
-        std::vector<Client *>         getOperators();
+        std::vector<Client *>&       getMembers();
+        std::vector<Client *>&       getOperators();
+        Client*                     getMemberByNick(std::string Nick);
+
 
 };
 

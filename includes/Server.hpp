@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 16:16:15 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:22:29 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,9 @@ class   Server
         std::string creationTime();
         Client*     getClient(int fd);
         Client*     getClientByNick(std::string Nick);
+        Client*     getClientByUser(std::string User);
         Channel&    getChannelbyName(std::string Channel);
-        std::vector<Channel>   getChannels();
+        std::vector<Channel>&   getChannels();
         void        itsClient(int i);
         
 };

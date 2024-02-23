@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 16:16:29 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/23 12:22:04 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -197,6 +197,18 @@ Client* Server::getClientByNick(std::string Nick)
     return NULL;
 }
 
+Client* Server::getClientByUser(std::string User)
+{
+    std::vector<Client *>::iterator it = _clients.begin();
+    while (it != _clients.end())
+    {
+        if ((*it)->getUserName() == User)
+            return *it;
+        it++;
+    }   
+    return NULL;
+}
+
 Channel& Server::getChannelbyName(std::string channelName)
 {
     std::vector<Channel>::iterator it = _channels.begin();
@@ -209,7 +221,7 @@ Channel& Server::getChannelbyName(std::string channelName)
     throw std::out_of_range("Channel not found");
 }
 
-std::vector<Channel>    Server::getChannels()
+std::vector<Channel>&    Server::getChannels()
 {
     return _channels;
 }
