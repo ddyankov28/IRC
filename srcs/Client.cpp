@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/26 14:43:56 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/26 15:27:48 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,10 +96,7 @@ bool    Client::moreLinesInBuffer()
     for (size_t i = 0; i < _buff.size(); i++)
     {
         if (_buff[i] == '\n')
-        {
             newLine++;
-            std::cout << "New line is encountered" << std::endl;
-        }
     }
     if (newLine >= 2)
         return true;
@@ -111,9 +108,32 @@ void    Client::splitByLine()
     std::istringstream iss(_buff);
     std::string line;
 
-    while (std::getline(iss, line)) 
+    while (std::getline(iss, line))
+    {
         _splitMoreLines.push_back(line);
-    
+
+        std::istringstream lineStream(line);
+        std::string word;
+        lineStream >> word;
+        if (lineStream >> word)
+        {
+            if (line.substr(0, 4) == "PASS")
+            {
+                if (word != _password)
+                {
+                    std::cout << "⛔️Password is incorrect⛔️\n" << std::endl;
+                    return ; 
+                }
+            }
+            else if (line.substr(0, 4) == "USER")
+                _userName = word;
+            else if (line.substr(0, 4) == "NICK")
+                _nickName = word;
+        }
+    }
+    std::cout << "Finished loop" << std::endl;
+    std::cout << getNickName() << std::endl;
+    std::cout << getUserName() << std::endl;
     for (size_t i = 0; i < _splitMoreLines.size(); i++)
     {
         std::cout << "LINE " << i << " is: " << _splitMoreLines[i] << std::endl;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/26 14:43:27 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/26 15:29:55 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,6 @@ void    Server::itsClient(int i)
         }
         else
         {
-            
             currentCli->setPassword(_password);
             currentCli->setBuff(currentCli->getBuff() + buff);
             // std::cout << "THERE WAS ENTER PRESSED" << std::endl;
