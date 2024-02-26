@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 14:38:55 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/26 12:43:55 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
 # define RESET "\033[0m"
 # define LINE  std::cout << "-------------------------" << std::endl;
 
-# define MAX_CONNECTIONS 3
+# define MAX_CONNECTIONS 10
 # define REGISTER "🤝You are connected but not registered yet🤝\r\n"
 
 extern int shouldRun;

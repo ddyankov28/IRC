@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/23 15:05:58 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/26 14:43:27 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,15 +94,24 @@ void    Server::itsClient(int i)
         }
         else
         {
+            
+            currentCli->setPassword(_password);
             currentCli->setBuff(currentCli->getBuff() + buff);
             // std::cout << "THERE WAS ENTER PRESSED" << std::endl;
             currentCli->setCliCommand(currentCli->getBuff());
             std::cout << "---[ Message from Client ] ---" << std::endl << currentCli->getBuff() << std::endl;
-            currentCli->setPassword(_password);
-            currentCli->splitCommand();
-            currentCli->checkCommand();
-            currentCli->checkFeatures();
-            currentCli->setBuff("");
+            if (currentCli->moreLinesInBuffer())
+            {
+                currentCli->splitByLine();
+            }
+            else
+            {
+                currentCli->splitCommand();
+                currentCli->checkCommand();
+                currentCli->checkFeatures();
+                currentCli->setBuff("");
+            }
+            
         }
     }
 }

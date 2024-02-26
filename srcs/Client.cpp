@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/23 15:11:45 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/26 14:43:56 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,36 @@ void    Client::splitCommand()
 
 }
 
+bool    Client::moreLinesInBuffer()
+{
+    int newLine = 0;
+    for (size_t i = 0; i < _buff.size(); i++)
+    {
+        if (_buff[i] == '\n')
+        {
+            newLine++;
+            std::cout << "New line is encountered" << std::endl;
+        }
+    }
+    if (newLine >= 2)
+        return true;
+    return false;
+}
+
+void    Client::splitByLine()
+{
+    std::istringstream iss(_buff);
+    std::string line;
+
+    while (std::getline(iss, line)) 
+        _splitMoreLines.push_back(line);
+    
+    for (size_t i = 0; i < _splitMoreLines.size(); i++)
+    {
+        std::cout << "LINE " << i << " is: " << _splitMoreLines[i] << std::endl;
+    }
+}
+
 void    Client::setPassword(std::string pass)
 {
     _password = pass;
@@ -125,11 +155,44 @@ void    Client::checkFeatures()
         }
         else if (_splitedCommand[0] == "JOIN")
             joinChannels();
-        
     }
     else if (_splitedCommand[0] == "KICK")
-            kickUsers();
+        kickUsers();
+    /*else if (_splitedCommand[0] == "MODE" && _splitedCommand.size() >= 3)
+    {
+        std::cout << "Here" << std::endl;
+        if (isChannelOperator())
+            handleMode();
+        else
+            std::cout << "No operator " << std::endl;
+    }*/
     _splitedCommand.clear();
+            
+}
+
+bool    Client::isChannelOperator()
+{
+    try
+    {
+        Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
+    std::vector<Client *>::iterator it = currentChannel.getOperators().begin();
+        while (it != currentChannel.getOperators().end())
+        {
+            if ((*it)->getNickName() == _nickName) //you are operator
+                return true;
+        }
+    }
+    catch (std::exception &e)
+    {
+        return false;
+    }
+    return false;
+}
+
+
+void    Client::handleMode()
+{
+    std::cout << "Is operator " << std::endl;
 }
 
 void    Client::kickUsers()

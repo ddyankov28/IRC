@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/23 13:52:44 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/26 14:41:11 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ class Client
         int                         _registerSteps;
         bool                        _passIsCorrect;
         std::vector<std::string>    _splitedCommand;
+        std::vector<std::string>    _splitMoreLines;
         Server&                     _server;
     public:
         Client(int cliFd, Server& server);
@@ -57,6 +58,10 @@ class Client
     void    splitCommand();
     void    joinChannels();
     void    kickUsers();
+    void    handleMode();
+    bool    isChannelOperator();
+    bool    moreLinesInBuffer();
+    void    splitByLine();
 };
 
 # endif
