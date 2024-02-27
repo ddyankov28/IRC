@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/26 15:27:48 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/02/27 15:26:31 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,11 @@ Client::~Client()
 void    Client::setFd(int pollFd)
 {
     _fd = pollFd;
+}
+
+void    Client::setIp(std::string ip)
+{
+    _ip = ip;
 }
 
 void    Client::setUserName(std::string userName)
@@ -41,6 +46,11 @@ void    Client::setCliCommand(std::string msg)
 int Client::getFd()
 {
     return _fd;
+}
+
+std::string Client::getIp()
+{
+    return _ip;
 }
 
 std::string Client::getUserName()
@@ -73,6 +83,11 @@ std::string Client::getBuff()
     return _buff;    
 }
 
+std::vector<std::string> Client::getSplitMoreLines()
+{
+    return _splitMoreLines;
+}
+
 void    Client::splitCommand()
 {
     std::istringstream  iss(_command);
@@ -90,7 +105,7 @@ void    Client::splitCommand()
 
 }
 
-bool    Client::moreLinesInBuffer()
+int    Client::moreLinesInBuffer()
 {
     int newLine = 0;
     for (size_t i = 0; i < _buff.size(); i++)
@@ -98,9 +113,7 @@ bool    Client::moreLinesInBuffer()
         if (_buff[i] == '\n')
             newLine++;
     }
-    if (newLine >= 2)
-        return true;
-    return false;
+    return newLine;
 }
 
 void    Client::splitByLine()
@@ -110,33 +123,7 @@ void    Client::splitByLine()
 
     while (std::getline(iss, line))
     {
-        _splitMoreLines.push_back(line);
-
-        std::istringstream lineStream(line);
-        std::string word;
-        lineStream >> word;
-        if (lineStream >> word)
-        {
-            if (line.substr(0, 4) == "PASS")
-            {
-                if (word != _password)
-                {
-                    std::cout << "⛔️Password is incorrect⛔️\n" << std::endl;
-                    return ; 
-                }
-            }
-            else if (line.substr(0, 4) == "USER")
-                _userName = word;
-            else if (line.substr(0, 4) == "NICK")
-                _nickName = word;
-        }
-    }
-    std::cout << "Finished loop" << std::endl;
-    std::cout << getNickName() << std::endl;
-    std::cout << getUserName() << std::endl;
-    for (size_t i = 0; i < _splitMoreLines.size(); i++)
-    {
-        std::cout << "LINE " << i << " is: " << _splitMoreLines[i] << std::endl;
+        _splitMoreLines.push_back(line);        
     }
 }
 
@@ -147,6 +134,8 @@ void    Client::setPassword(std::string pass)
 
 void    Client::checkFeatures()
 {
+    if (_splitedCommand.size() < 1)
+        return;
     if ((_splitedCommand[0] == "PRIVMSG"  && _splitedCommand.size() >= 3) || (_splitedCommand[0] == "JOIN" && _splitedCommand.size() >= 2) || (_splitedCommand[0] == "QUIT"))
     {
         if (_splitedCommand[0] == "PRIVMSG")
@@ -156,14 +145,16 @@ void    Client::checkFeatures()
             {
                 std::string msg = "@localhost: ";
                 send(getFd(), msg.c_str(), msg.size(), 0);
-                send(_fd, "⛔️No such Nick⛔️\n", 26, 0);
+                send(_fd, "⛔️No such Nick⛔️\n", 25, 0);
             }
             else
             {
-                std::string msg = getUserName() + "!" + getNickName() + "@localhost: ";
+                std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " ";
+//replyToClient(target->getFd(), ":" + user->getIdentifier() + " " + cmd[0] + " " + target->getNickname() + " :" + msgToSend + "\n");
+
                 send(Reciever->getFd(), msg.c_str(), msg.size(), 0);
                 size_t i = 2;
-                while (i <= _splitedCommand.size())
+                while (i < _splitedCommand.size())
                 {
                     send(Reciever->getFd(), _splitedCommand[i].c_str() , _splitedCommand[i].size(), 0);
                     if (i < _splitedCommand.size() - 1)
@@ -186,8 +177,9 @@ void    Client::checkFeatures()
         else
             std::cout << "No operator " << std::endl;
     }*/
-    _splitedCommand.clear();
-            
+    std::cout << "Earasing" << std::endl;
+    _splitedCommand.erase(_splitedCommand.begin(), _splitedCommand.end());
+    
 }
 
 bool    Client::isChannelOperator()
@@ -230,7 +222,7 @@ void    Client::kickUsers()
                 {
                     if ((*itMembers)->getNickName() == _splitedCommand[2])
                     {
-                        send((*itMembers)->getFd(), "You were kicked out of the channel\n", 36, 0);
+                        send((*itMembers)->getFd(), "You were kicked out of the channel\n", 35, 0);
                         currentChannel.getMembers().erase(itMembers);
                         std::vector<Client *>::iterator itOperators = currentChannel.getOperators().begin();
                         while (itOperators != currentChannel.getOperators().end())
@@ -245,17 +237,17 @@ void    Client::kickUsers()
                     else
                         ++itMembers;   
                 }
-                send(_fd, "There is no such member in the channel\n", 40, 0);
+                send(_fd, "There is no such member in the channel\n", 39, 0);
                 return ;
             }
             it++;
         }
-        send(_fd, "You are not an operator\n", 25, 0);
+        send(_fd, "You are not an operator\n", 24, 0);
         
     }
     catch (std::exception& e)
     {
-        send(_fd, "There is no such channel\n", 26, 0);
+        send(_fd, "There is no such channel\n", 25, 0);
     }
 }
 
@@ -278,7 +270,7 @@ void    Client::joinChannels()
                 {
                     if (currentChannel.getMemberByNick(_nickName))
                     {
-                        send(_fd, "⛔️Nick already in channel⛔️\n", 37, 0);
+                        send(_fd, "⛔️Nick already in channel⛔️\n", 36, 0);
                         return ;
                     }
                     currentChannel.getMembers().push_back(this);
@@ -299,10 +291,15 @@ void    Client::joinChannels()
 void    Client::checkCommand()
 {
     //std::cout << _password << std::endl;
+    if (_splitedCommand.size() < 1)
+        return;
     if (((_splitedCommand[0] == "PASS" && _passIsCorrect == false) || _splitedCommand[0] == "NICK" || _splitedCommand[0] == "USER") && _splitedCommand.size() >= 2)
     {
         if (_splitedCommand[0] == "PASS" && _splitedCommand[1] != _password)
-            send(_fd, "⛔️Password is incorrect⛔️\n", 35, 0);
+        {
+            std::cout << _fd << std::endl;
+            send(_fd, "⛔️Password is incorrect⛔️\n", 34, 0);
+        }
         else if (_splitedCommand[0] == "PASS" && _splitedCommand[1] == _password)
         {
             _registerSteps++;
@@ -312,7 +309,7 @@ void    Client::checkCommand()
         {
             if (_server.getClientByNick(_splitedCommand[1]))
             {
-                send(_fd, "⛔️Nickname already in use⛔️\n", 37, 0);
+                send(_fd, "⛔️Nickname already in use⛔️\n", 36, 0);
                 return ;
             }
             setNickName(_splitedCommand[1]);
@@ -330,14 +327,17 @@ void    Client::checkCommand()
         }
     }
     else if (_splitedCommand[0] == "PASS" && _passIsCorrect == true)
-        send(_fd, "✅You already provided a correct password✅\n", 47, 0);
+        send(_fd, "✅You already provided a correct password✅\n", 46, 0);
     else if (_isRegistered == false)
-        send(_fd, "🚫Wrong command, you have to register yourself🚫\n", 54, 0);
+    {
+        if (_splitedCommand[0] != "CAP" && _splitedCommand[1] != "LS")
+            send(_fd, "🚫Wrong command, you have to register yourself🚫\n", 53, 0);
+    }
     if (_registerSteps == 3)
     {
         _isRegistered = true;
         _registerSteps++;
-        send(_fd, "✅You are already registered✅\n", 34, 0);
+        send(_fd, "✅You are already registered✅\n", 33, 0);
     }
     //std::cout << "NICKNAME FOR USER WITH FD " << _fd << " IS: " << _nickName;
     //std::cout << "USERNAME FOR USER WITH FD " << _fd << " IS: " << _userName << std::endl;

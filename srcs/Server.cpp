@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Server.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/26 15:29:55 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/02/27 15:04:18 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,17 @@ void    Server::acceptAndAddConnections()
     socklen_t newConnectionLen = sizeof(newConnection);
     if ((newFd = accept(_serverFd, (struct sockaddr *) &newConnection, &newConnectionLen)) == -1)
         setupErrorHandler("Accepting a new connection Error");
+    char str[INET_ADDRSTRLEN];
+	inet_ntop(AF_INET, &newConnection, str, INET_ADDRSTRLEN);
     _polls[_fdsCounter].fd = newFd;
     _polls[_fdsCounter].events = POLLIN;
     _polls[_fdsCounter].revents = 0;
-    send(_polls[_fdsCounter].fd, "👋--- Welcome to the 42_IRC Server ---👋\nCreated on ", 57, 0);
+    send(_polls[_fdsCounter].fd, "👋--- Welcome to the 42_IRC Server ---👋\nCreated on ", 56, 0);
     send(_polls[_fdsCounter].fd, _creationTime.c_str(), _creationTime.size(), 0);
-    send(_polls[_fdsCounter].fd, REGISTER, sizeof(REGISTER), 0);
+    send(_polls[_fdsCounter].fd, "You are connected but not registered yet\n", 41, 0);
     std::cout << "Server accepted a connection" << std::endl;
     Client* newClient = new Client(_polls[_fdsCounter].fd, *this);
+    newClient->setIp(str);
     _clients.push_back(newClient);
     std::cout << "Client was added" << std::endl;
     _fdsCounter++;
@@ -67,20 +70,7 @@ void    Server::itsClient(int i)
             perror("Error");
         close(_polls[i].fd);
         _fdsCounter--;
-        std::vector<Client *>::iterator it = _clients.begin();
-        int cl = 0;
-        while (it != _clients.end())
-        {
-            if ((*it)->getFd() == currentCli->getFd())
-            {
-                close(currentCli->getFd());
-                delete _clients[cl];
-                _clients.erase(it);
-                break ;
-            }
-            it++;
-            cl++;
-        }
+        std::cout << _clients.size() << std::endl;
     }
     else
     {
@@ -99,9 +89,22 @@ void    Server::itsClient(int i)
             // std::cout << "THERE WAS ENTER PRESSED" << std::endl;
             currentCli->setCliCommand(currentCli->getBuff());
             std::cout << "---[ Message from Client ] ---" << std::endl << currentCli->getBuff() << std::endl;
-            if (currentCli->moreLinesInBuffer())
+            
+            if (currentCli->moreLinesInBuffer() >= 2)
             {
-                currentCli->splitByLine();
+                size_t i = 0;
+                size_t lines = currentCli->moreLinesInBuffer();
+                while (i < lines)
+                {
+                    if (i == 0)
+                        currentCli->splitByLine();
+                    currentCli->setCliCommand(currentCli->getSplitMoreLines()[i]);
+                    currentCli->splitCommand();
+                    currentCli->checkCommand();
+                    currentCli->checkFeatures();
+                    currentCli->setBuff("");
+                    i++;
+                }
             }
             else
             {
@@ -144,6 +147,7 @@ void    Server::removeClient(int fd)
                         ++itMembers;
                 }      
             }
+            delete *itClients;
             _clients.erase(itClients);
         }
         else

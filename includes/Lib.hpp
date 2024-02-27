@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/26 12:43:55 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/27 14:50:24 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@
 # include <ctime>
 # include <sstream>
 # include <algorithm>
+# include <arpa/inet.h>
+
 
 # define URED "\033[4;31m"
 # define RED "\033[1;91m"
@@ -38,7 +40,7 @@
 # define LINE  std::cout << "-------------------------" << std::endl;
 
 # define MAX_CONNECTIONS 10
-# define REGISTER "🤝You are connected but not registered yet🤝\r\n"
+# define REGISTER "You are connected but not registered yet\n"
 
 extern int shouldRun;
 
