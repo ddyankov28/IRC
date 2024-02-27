@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/27 15:04:18 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/27 16:06:36 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,7 +244,15 @@ Client* Server::getClientByNick(std::string Nick)
         if ((*it)->getNickName() == Nick)
             return *it;
         it++;
-    }   
+    }
+    try
+    {
+        getChannelbyName(Nick);
+    }
+    catch(const std::exception& e)
+    {
+        return NULL;
+    }
     return NULL;
 }
 

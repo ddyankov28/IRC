@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/27 15:26:31 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/27 16:44:10 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -136,50 +136,84 @@ void    Client::checkFeatures()
 {
     if (_splitedCommand.size() < 1)
         return;
-    if ((_splitedCommand[0] == "PRIVMSG"  && _splitedCommand.size() >= 3) || (_splitedCommand[0] == "JOIN" && _splitedCommand.size() >= 2) || (_splitedCommand[0] == "QUIT"))
+    if (_splitedCommand[0] == "PRIVMSG" && _splitedCommand.size() == 1)
     {
-        if (_splitedCommand[0] == "PRIVMSG")
+        std::string msg = ERR_NORECIPIENT + _splitedCommand[0] + "\n";
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
+    else if (_splitedCommand[0] == "PRIVMSG")
+    {
+        int isChannel = 0;
+        Client* Reciever = _server.getClientByNick(_splitedCommand[1]);
+        try
         {
-            Client* Reciever = _server.getClientByNick(_splitedCommand[1]);
-            if (!Reciever)
+            Channel& RecieverChannel = _server.getChannelbyName(_splitedCommand[1]);
+            (void)RecieverChannel;
+        }
+        catch(const std::exception& e)
+        {
+            isChannel = 1;
+        }
+        
+        if (!Reciever && isChannel)
+        {
+            std::string msg = _splitedCommand[1] + ERR_NOSUCHNICK;
+            send(getFd(), msg.c_str(), msg.size(), 0);
+        }
+        else if (_splitedCommand.size() == 2)
+        {
+            std::string msg = ERR_NOTEXTTOSEND;
+            send(getFd(), msg.c_str(), msg.size(), 0);
+        }
+        else if (_splitedCommand[2][0] != ':')
+            send(getFd(), ":Wrong Format of Message\n", 25, 0);
+        else if(isChannel == 0)
+        {
+            Channel& RecieverChannel = _server.getChannelbyName(_splitedCommand[1]);
+            if (ClientInChannel(RecieverChannel))
             {
-                std::string msg = "@localhost: ";
-                send(getFd(), msg.c_str(), msg.size(), 0);
-                send(_fd, "⛔️No such Nick⛔️\n", 25, 0);
+                //sendMsgInChannel();
+                std::cout << "HERE WE SEND MESSAGE TO THE USERS IN CHANNEL" << std::endl;
             }
             else
-            {
-                std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " ";
-//replyToClient(target->getFd(), ":" + user->getIdentifier() + " " + cmd[0] + " " + target->getNickname() + " :" + msgToSend + "\n");
-
-                send(Reciever->getFd(), msg.c_str(), msg.size(), 0);
-                size_t i = 2;
-                while (i < _splitedCommand.size())
-                {
-                    send(Reciever->getFd(), _splitedCommand[i].c_str() , _splitedCommand[i].size(), 0);
-                    if (i < _splitedCommand.size() - 1)
-                        send(Reciever->getFd(), " ", 1, 0);
-                    i++;
-                }
-                send(Reciever->getFd(), "\n", 1, 0);
-            }
+                send(_fd, "You are not a member in this channel\n", 37, 0);
         }
-        else if (_splitedCommand[0] == "JOIN")
-            joinChannels();
+        else
+        {
+            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " ";
+            send(Reciever->getFd(), msg.c_str(), msg.size(), 0);
+            size_t i = 2;
+            while (i < _splitedCommand.size())
+            {
+                send(Reciever->getFd(), _splitedCommand[i].c_str() , _splitedCommand[i].size(), 0);
+                if (i < _splitedCommand.size() - 1)
+                    send(Reciever->getFd(), " ", 1, 0);
+                i++;
+            }
+            send(Reciever->getFd(), "\n", 1, 0);
+        }
     }
+    else if (_splitedCommand[0] == "JOIN")
+            joinChannels();
     else if (_splitedCommand[0] == "KICK")
         kickUsers();
-    /*else if (_splitedCommand[0] == "MODE" && _splitedCommand.size() >= 3)
+    else if (_splitedCommand[0] == "MODE" && _splitedCommand.size() >= 3)
     {
         std::cout << "Here" << std::endl;
         if (isChannelOperator())
             handleMode();
         else
             std::cout << "No operator " << std::endl;
-    }*/
-    std::cout << "Earasing" << std::endl;
+    }
     _splitedCommand.erase(_splitedCommand.begin(), _splitedCommand.end());
-    
+}
+
+bool    Client::ClientInChannel(Channel& channel)
+{
+    if (channel.getMemberByNick(_nickName) != NULL)
+        return true;
+    else
+        return false;
 }
 
 bool    Client::isChannelOperator()

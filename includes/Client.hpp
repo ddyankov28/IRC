@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/27 14:35:13 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/27 16:43:33 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 # include "Server.hpp"
 
 class Server;
+class Channel;
 
 class Client
 {
@@ -66,6 +67,7 @@ class Client
     bool    isChannelOperator();
     int    moreLinesInBuffer();
     void    splitByLine();
+    bool    ClientInChannel(Channel& channel);
 };
 
 # endif

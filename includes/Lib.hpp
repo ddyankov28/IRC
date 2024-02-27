@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/27 14:50:24 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/27 15:46:21 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,10 @@
 
 # define MAX_CONNECTIONS 10
 # define REGISTER "You are connected but not registered yet\n"
+# define ERR_NOTEXTTOSEND ":No text to send\n"
+# define ERR_NOSUCHNICK " :No such nick/channel\n"
+# define ERR_NORECIPIENT ":No recipient given "
+
 
 extern int shouldRun;
 
