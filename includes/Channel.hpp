@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/23 13:35:26 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/28 13:25:05 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,8 @@ class Channel
         std::vector<Client *>&       getMembers();
         std::vector<Client *>&       getOperators();
         Client*                     getMemberByNick(std::string Nick);
+        Client*                     getOpByNick(std::string Nick);
+        
 
 
 };

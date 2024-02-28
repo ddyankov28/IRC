@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/23 12:10:51 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/28 13:24:11 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,18 @@ Client* Channel::getMemberByNick(std::string Nick)
 {
     std::vector<Client *>::iterator it = _members.begin();
     while (it != _members.end())
+    {
+        if ((*it)->getNickName() == Nick)
+            return *it;
+        it++;
+    }   
+    return NULL;
+}
+
+Client* Channel::getOpByNick(std::string Nick)
+{
+    std::vector<Client *>::iterator it = _operators.begin();
+    while (it != _operators.end())
     {
         if ((*it)->getNickName() == Nick)
             return *it;

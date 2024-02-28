@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/28 12:30:00 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/02/28 13:56:43 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,9 +137,7 @@ void    Client::sendMsgInChannel(Channel& RecieverChannel)
     std::vector<Client *>::iterator it = RecieverChannel.getMembers().begin();
     while (it != RecieverChannel.getMembers().end())
     {
-        if ((*it)->getNickName() == _nickName)
-            send((*it)->getFd(), "Send different Message!\n", 24, 0);
-        else
+        if ((*it)->getNickName() != _nickName)
         { 
             std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " ";
             send((*it)->getFd(), msg.c_str(), msg.size(), 0);
@@ -329,10 +327,31 @@ void    Client::joinChannels()
                 {
                     if (currentChannel.getMemberByNick(_nickName))
                     {
-                        send(_fd, "⛔️Nick already in channel⛔️\n", 36, 0);
+                        send(_fd, ":Nick is already in channel\n", 28, 0);
                         return ;
                     }
                     currentChannel.getMembers().push_back(this);
+
+                    std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
+                    while (it != currentChannel.getMembers().end())
+                    {
+                        std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
+                        send((*it)->getFd(), msg.c_str(), msg.size(), 0);
+                        it++;
+                    }
+                    std::string msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] +  " :";
+                    send(getFd(), msg.c_str(), msg.size(), 0);
+                    it = currentChannel.getMembers().begin();
+                    while (it != currentChannel.getMembers().end())
+                    {
+                        if (currentChannel.getOpByNick((*it)->getNickName()))
+                            msg = " @" + (*it)->getNickName();
+                        else
+                            msg = " " + (*it)->getNickName();
+                        send(getFd(), msg.c_str(), msg.size(), 0);
+                        it++;
+                    }
+                    send(getFd(), "\n", 1, 0);
                 } 
             }
             catch (std::exception& e)
@@ -342,6 +361,10 @@ void    Client::joinChannels()
                 newChannel.getMembers().push_back(this);
                 newChannel.getOperators().push_back(this);
                 _server.getChannels().push_back(newChannel);
+                std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
+                send(getFd(), msg.c_str(), msg.size(), 0);
+                msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] + " :@" + getNickName() + "\n";
+                send(getFd(), msg.c_str(), msg.size(), 0);
             }          
         }
 }
