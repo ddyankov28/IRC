@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/27 16:44:10 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/28 12:30:00 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,31 @@ void    Client::setPassword(std::string pass)
     _password = pass;
 }
 
+void    Client::sendMsgInChannel(Channel& RecieverChannel)
+{
+    std::vector<Client *>::iterator it = RecieverChannel.getMembers().begin();
+    while (it != RecieverChannel.getMembers().end())
+    {
+        if ((*it)->getNickName() == _nickName)
+            send((*it)->getFd(), "Send different Message!\n", 24, 0);
+        else
+        { 
+            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " ";
+            send((*it)->getFd(), msg.c_str(), msg.size(), 0);
+            size_t i = 2;
+            while (i < _splitedCommand.size())
+            {
+                send((*it)->getFd(), _splitedCommand[i].c_str() , _splitedCommand[i].size(), 0);
+                if (i < _splitedCommand.size() - 1)
+                    send((*it)->getFd(), " ", 1, 0);
+                i++;
+            }
+            send((*it)->getFd(), "\n", 1, 0);
+        }
+        it++;
+    }
+}
+
 void    Client::checkFeatures()
 {
     if (_splitedCommand.size() < 1)
@@ -171,12 +196,12 @@ void    Client::checkFeatures()
         {
             Channel& RecieverChannel = _server.getChannelbyName(_splitedCommand[1]);
             if (ClientInChannel(RecieverChannel))
-            {
-                //sendMsgInChannel();
-                std::cout << "HERE WE SEND MESSAGE TO THE USERS IN CHANNEL" << std::endl;
-            }
+                sendMsgInChannel(RecieverChannel);
             else
-                send(_fd, "You are not a member in this channel\n", 37, 0);
+            {
+                std::string msg = _splitedCommand[1] + ERR_NOTONCHANNEL;
+                send(_fd, msg.c_str(), msg.size(), 0);
+            }
         }
         else
         {
@@ -321,12 +346,37 @@ void    Client::joinChannels()
         }
 }
 
+void    Client::needMoreParams()
+{
+    if (_splitedCommand[0] == "PASS")
+    {
+        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
+    else if (_splitedCommand[0] == "NICK")
+    {
+        std::string msg = ERR_NONICKNAMEGIVEN;
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
+    else if (_splitedCommand[0] == "USER")
+    {
+        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
+
+}
+
 
 void    Client::checkCommand()
 {
     //std::cout << _password << std::endl;
     if (_splitedCommand.size() < 1)
         return;
+    if (_splitedCommand.size() == 1)
+    {
+        needMoreParams();
+        return ;
+    }
     if (((_splitedCommand[0] == "PASS" && _passIsCorrect == false) || _splitedCommand[0] == "NICK" || _splitedCommand[0] == "USER") && _splitedCommand.size() >= 2)
     {
         if (_splitedCommand[0] == "PASS" && _splitedCommand[1] != _password)

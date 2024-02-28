@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/27 16:43:33 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/28 12:23:15 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,6 +68,9 @@ class Client
     int    moreLinesInBuffer();
     void    splitByLine();
     bool    ClientInChannel(Channel& channel);
+    void    sendMsgInChannel(Channel& RecieverChannel);
+    void    needMoreParams();
+
 };
 
 # endif

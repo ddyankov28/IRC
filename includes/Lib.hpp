@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Lib.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/27 15:46:21 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/28 12:20:01 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,11 @@
 # define ERR_NOTEXTTOSEND ":No text to send\n"
 # define ERR_NOSUCHNICK " :No such nick/channel\n"
 # define ERR_NORECIPIENT ":No recipient given "
-
+# define ERR_NOTONCHANNEL " :You're not on that channel\n"
+# define ERR_CHANNELISFULL " :Cannot join channel (+l)\n"
+# define ERR_BADCHANNELKEY " :Cannot join channel (+k)\n"
+# define ERR_NEEDMOREPARAMS " :Not enough parameters\n"
+# define ERR_NONICKNAMEGIVEN ":No nickname given\n"
 
 extern int shouldRun;
 
