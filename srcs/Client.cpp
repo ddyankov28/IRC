@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/28 13:56:43 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/28 16:56:47 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -244,11 +244,12 @@ bool    Client::isChannelOperator()
     try
     {
         Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
-    std::vector<Client *>::iterator it = currentChannel.getOperators().begin();
+        std::vector<Client *>::iterator it = currentChannel.getOperators().begin();
         while (it != currentChannel.getOperators().end())
         {
             if ((*it)->getNickName() == _nickName) //you are operator
                 return true;
+            it++;
         }
     }
     catch (std::exception &e)
@@ -266,45 +267,77 @@ void    Client::handleMode()
 
 void    Client::kickUsers()
 {
+    if (_splitedCommand.size() == 1)
+        return ;
     try
     {
         Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
-        std::vector<Client *>::iterator it = currentChannel.getOperators().begin();
-        while (it != currentChannel.getOperators().end())
+        if (ClientInChannel(currentChannel))
         {
-            if ((*it)->getNickName() == _nickName) //you are operator
+            std::vector<Client *>::iterator it = currentChannel.getOperators().begin();
+            while (it != currentChannel.getOperators().end())
             {
-                std::vector<Client *>::iterator itMembers = currentChannel.getMembers().begin();
-                while (itMembers != currentChannel.getMembers().end())
+                if ((*it)->getNickName() == _nickName) //you are operator
                 {
-                    if ((*itMembers)->getNickName() == _splitedCommand[2])
+                    std::vector<Client *>::iterator itMembers = currentChannel.getMembers().begin();
+                    while (itMembers != currentChannel.getMembers().end())
                     {
-                        send((*itMembers)->getFd(), "You were kicked out of the channel\n", 35, 0);
-                        currentChannel.getMembers().erase(itMembers);
-                        std::vector<Client *>::iterator itOperators = currentChannel.getOperators().begin();
-                        while (itOperators != currentChannel.getOperators().end())
+                        if ((*itMembers)->getNickName() == _splitedCommand[2])
                         {
-                            if ((*itOperators)->getNickName() == _splitedCommand[2])
-                                currentChannel.getOperators().erase(itOperators);
-                            else
-                                ++itOperators;
-                        }    
-                        return ;
+                            std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
+                            while (it != currentChannel.getMembers().end())
+                            {
+                                std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + " :" + _nickName + "\n";
+                                send((*it)->getFd(), msg.c_str(), msg.size(), 0);
+                                it++;
+                            }
+                            currentChannel.getMembers().erase(itMembers);
+                            std::vector<Client *>::iterator itOperators = currentChannel.getOperators().begin();
+                            while (itOperators != currentChannel.getOperators().end())
+                            {
+                                if ((*itOperators)->getNickName() == _splitedCommand[2])
+                                    currentChannel.getOperators().erase(itOperators);
+                                else
+                                    ++itOperators;
+                            }
+                            if (currentChannel.getMembers().size() == 0)
+                            {
+                                std::vector<Channel>::iterator it = _server.getChannels().begin();
+                                while (it != _server.getChannels().end())
+                                {
+                                    if (it->getChannelName() == _splitedCommand[1])
+                                    {
+                                        std::cout << _server.getChannels()[0].getChannelName() << std::endl;
+                                        _server.getChannels().erase(it);
+                                    }
+                                        //std::cout << it->getChannelName() << std::endl;
+                                    it++;
+                                }
+                            }
+                            return ;
+                        }
+                        else
+                            ++itMembers;   
                     }
-                    else
-                        ++itMembers;   
+                    send(_fd, _splitedCommand[2].c_str(), _splitedCommand[2].size(), 0);
+                    send(_fd, " :No such Nick on channel\n", 26, 0);
+                    return ;
                 }
-                send(_fd, "There is no such member in the channel\n", 39, 0);
-                return ;
+                it++;
             }
-            it++;
+            send(_fd, _splitedCommand[1].c_str(), _splitedCommand[1].size(), 0);
+            send(_fd, " :You're not channel operator\n", 30, 0);  
         }
-        send(_fd, "You are not an operator\n", 24, 0);
-        
+        else
+        {
+            std::string msg = _splitedCommand[1] + ERR_NOTONCHANNEL;
+            send(_fd, msg.c_str(), msg.size(), 0);
+        }  
     }
     catch (std::exception& e)
     {
-        send(_fd, "There is no such channel\n", 25, 0);
+        send(_fd, _splitedCommand[1].c_str(), _splitedCommand[1].size(), 0);
+        send(_fd, " :No such channel\n", 18, 0);
     }
 }
 
@@ -386,7 +419,11 @@ void    Client::needMoreParams()
         std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
         send(getFd(), msg.c_str(), msg.size(), 0);
     }
-
+    else if (_splitedCommand[0] == "KICK")
+    {
+        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
 }
 
 
