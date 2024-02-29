@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/28 13:25:05 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/02/29 16:02:10 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ class Channel
     public:
         Channel(std::string name, Server& server);
         ~Channel();
+        Channel&  operator=(const Channel& inst);
         
         std::string                 getChannelName();
         bool                        getisInviteChannel();
@@ -45,6 +46,11 @@ class Channel
         std::vector<Client *>&       getOperators();
         Client*                     getMemberByNick(std::string Nick);
         Client*                     getOpByNick(std::string Nick);
+
+        void                        setisInviteChannel(char c);
+        void                        setisTopicRestricted(char c);
+        void                        setlimit(char c, std::string limit);
+        void                        setKeyChannel(char c, std::string key);
         
 
 

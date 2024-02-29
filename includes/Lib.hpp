@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/28 12:20:01 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/02/29 13:09:49 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@
 # include <algorithm>
 # include <arpa/inet.h>
 
-
 # define URED "\033[4;31m"
 # define RED "\033[1;91m"
 # define GREEN "\033[1;92m"
@@ -49,6 +48,7 @@
 # define ERR_BADCHANNELKEY " :Cannot join channel (+k)\n"
 # define ERR_NEEDMOREPARAMS " :Not enough parameters\n"
 # define ERR_NONICKNAMEGIVEN ":No nickname given\n"
+# define ERR_UNKNOWNMODE " :is unknown mode to me\n"
 
 extern int shouldRun;
 
