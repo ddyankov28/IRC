@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/01 12:19:08 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:27:53 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -643,7 +643,7 @@ void    Client::checkCommand()
             send(_fd, "⛔️Password is incorrect⛔️\n", 34, 0);
         else if (_splitedCommand[0] == "PASS" && _splitedCommand.size() > 2)
         {
-            send(_fd, ":Too much parameters\n", 22, 0);
+            send(_fd, "PASS :Too much parameters\n", 26, 0);
                 return ;
         }
         else if (_splitedCommand[0] == "PASS" && _splitedCommand[1] == _password)
@@ -655,12 +655,12 @@ void    Client::checkCommand()
         {
             if (_splitedCommand.size() > 2)
             {
-                send(_fd, ":Too much parameters\n", 22, 0);
+                send(_fd, "NICK :Too much parameters\n", 26, 0);
                 return ;
             }         
             else if (_server.getClientByNick(_splitedCommand[1]))
             {
-                std::string msg = _splitedCommand[1] + ":Nickname already in use\n";
+                std::string msg = _splitedCommand[1] + " :Nickname already in use\n";
                 send(_fd, msg.c_str(), msg.size(), 0);
                 return ;
             }
@@ -669,9 +669,15 @@ void    Client::checkCommand()
         }
         else if (_splitedCommand[0] == "USER")
         {
-            if (_server.getClientByUser(_splitedCommand[1]))
+            if (_splitedCommand.size() > 2)
             {
-                send(_fd, "Username already in use\n", 24, 0);
+                send(_fd, "USER :Too much parameters\n", 26, 0);
+                return ;
+            }       
+            else if (_server.getClientByUser(_splitedCommand[1]))
+            {
+                std::string msg = _splitedCommand[1] + " :Username already in use\n";
+                send(_fd, msg.c_str(), msg.size(), 0);
                 return ;
             }
             setUserName(_splitedCommand[1]);
