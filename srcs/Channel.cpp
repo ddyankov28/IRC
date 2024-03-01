@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/29 16:29:30 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:31:45 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,8 +104,6 @@ void    Channel::setisTopicRestricted(char c)
 
 void    Channel::setlimit(char c, std::string limit)
 {
-    std::cout << c << std::endl;
-    std::cout << "<"<< limit << ">" << std::endl;
     if (c == '-')
         _limit = 0;
     else

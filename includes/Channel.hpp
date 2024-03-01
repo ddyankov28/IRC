@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/29 16:02:10 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:33:23 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,9 +51,6 @@ class Channel
         void                        setisTopicRestricted(char c);
         void                        setlimit(char c, std::string limit);
         void                        setKeyChannel(char c, std::string key);
-        
-
-
 };
 
 # endif

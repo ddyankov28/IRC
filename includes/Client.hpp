@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/01 11:12:37 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:44:15 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,6 @@ class Client
     void    handleKeyChannel();
     bool    stringHasOnlyDigits();
     bool    isValidCommand();
-
 };
 
 # endif

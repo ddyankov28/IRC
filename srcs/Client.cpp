@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/01 12:27:53 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:50:18 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -334,8 +334,12 @@ void    Client::handleLimit()
         Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
         if (_splitedCommand[2] == "-l")
         {
+            if (_splitedCommand.size() != 3)
+            {
+                send(_fd, ": Too much parameters\n", 22, 0);
+                return ;
+            }
             currentChannel.setlimit(_splitedCommand[2][0], "");
-            std::cout << "-l in here" << std::endl;
             std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
             sendToAllMembers(currentChannel, msg);
             return ;
@@ -347,7 +351,7 @@ void    Client::handleLimit()
         }
         else if (!stringHasOnlyDigits())
         {
-            send(_fd, ": +l needs a number as an argument", 34, 0);
+            send(_fd, ": +l needs a number as an argument\n", 35, 0);
             return ;
         }
         else if (atoi(_splitedCommand[3].c_str()) > MAX_CONNECTIONS)
@@ -377,9 +381,10 @@ void    Client::handleKeyChannel()
         Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
         if (_splitedCommand[2] == "-k")
         {
-            currentChannel.setKeyChannel(_splitedCommand[2][0], NULL);
+            currentChannel.setKeyChannel(_splitedCommand[2][0], "");
             std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
             sendToAllMembers(currentChannel, msg);
+            return ;
         }
         else if (_splitedCommand.size() != 4)
         {

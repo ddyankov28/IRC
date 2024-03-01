@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:35:51 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/28 15:53:23 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/01 12:33:26 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,6 @@ class   Server
         void        itsClient(int i);
         void        removeClient(int fd);
         void        deleteChannel(std::string channelName);
-
 };
 
 # endif
