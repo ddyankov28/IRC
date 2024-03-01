@@ -1,0 +1,6 @@
+fixed
+    :   -l segfault, 
+    :   when false command (err msg)
+    :   when more parameters by registration
+    :   after changing nickname and username sends to you :Nickname/Username changed
+    :   
