@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:11:56 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:25:45 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ std::vector<Client *>&    Channel::getOperators()
 {
     return _operators;
 }
-std::vector<std::string>    Channel::getinvitedUsers()
+std::vector<std::string>&    Channel::getinvitedUsers()
 {
     return _invitedUsers;
 }

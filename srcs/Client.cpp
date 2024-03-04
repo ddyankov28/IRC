@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:15:20 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:25:27 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -578,7 +578,6 @@ void    Client::inviteUsers()
             else
             {
                 currentChannel.getinvitedUsers().push_back(_splitedCommand[1]);
-                std::cout << currentChannel.getinvitedUsers().size() << std::endl;
                 std::string msg = _splitedCommand[1] + " :You have been invited message\n";
                 send(getFd(), msg.c_str(), msg.size(), 0);
             }

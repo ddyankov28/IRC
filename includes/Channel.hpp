@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:12:15 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:22:35 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ class Channel
         std::string                 getchannelKey();
         std::vector<Client *>&      getMembers();
         std::vector<Client *>&      getOperators();
-        std::vector<std::string>    getinvitedUsers();
+        std::vector<std::string>&    getinvitedUsers();
 
         Client*                     getMemberByNick(std::string Nick);
         Client*                     getOpByNick(std::string Nick);
