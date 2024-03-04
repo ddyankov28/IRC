@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/01 12:44:15 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/04 12:39:27 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,11 @@ class Client
     void    checkCommand();
     void    splitCommand();
     void    joinChannels();
+    void    join(Channel& currentChannel);
     void    kickUsers();
     void    handleMode();
     bool    isChannelOperator();
-    int    moreLinesInBuffer();
+    int     moreLinesInBuffer();
     void    splitByLine();
     bool    ClientInChannel(Channel& channel);
     void    sendMsgInChannel(Channel& RecieverChannel);
@@ -77,6 +78,8 @@ class Client
     void    handleKeyChannel();
     bool    stringHasOnlyDigits();
     bool    isValidCommand();
+    void    inviteUsers();
+
 };
 
 # endif

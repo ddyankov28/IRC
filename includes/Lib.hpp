@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/29 13:09:49 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/04 13:14:16 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@
 # define ERR_NEEDMOREPARAMS " :Not enough parameters\n"
 # define ERR_NONICKNAMEGIVEN ":No nickname given\n"
 # define ERR_UNKNOWNMODE " :is unknown mode to me\n"
+# define ERR_INVITEONLYCHAN " :Cannot join channel (+i)\n"
 
 extern int shouldRun;
 

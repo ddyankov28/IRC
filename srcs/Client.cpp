@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/01 12:50:18 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:15:20 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,6 +230,8 @@ void    Client::checkFeatures()
         joinChannels();
     else if (_splitedCommand[0] == "KICK")
         kickUsers();
+    else if (_splitedCommand[0] == "INVITE")
+        inviteUsers();
     else if (_splitedCommand[0] == "MODE")
     {
         if (_splitedCommand.size() == 1) // FIXED (WE RETURNED BUT DIDNT ERASE THE PREVIOUS COMMAND)
@@ -409,11 +411,16 @@ void    Client::handleFourParams()
         handleKeyChannel();
     else
     {
+        if (_splitedCommand.size() != 4)
+        {
+            send(_fd, ":Not enough parameters\n", 23, 0);
+            return ;
+        }
         try
         {
             Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
-            currentChannel.setisTopicRestricted(_splitedCommand[2][0]);
-            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
+            currentChannel.setOperator(_splitedCommand[2][0], _splitedCommand[3]);
+            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + " " + _splitedCommand[3] + "\n";
             sendToAllMembers(currentChannel, msg);
         }
         catch(const std::exception& e)
@@ -537,66 +544,141 @@ void    Client::sendToAllMembers(Channel& currentChannel, std::string msg)
     }
 }
 
+
+void    Client::inviteUsers()
+{
+    if (_splitedCommand.size() == 1)
+        return ;
+    else if (_splitedCommand.size() == 2)
+    {
+        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
+    else
+    {
+        if (!_server.getClientByNick(_splitedCommand[1]))
+        {
+            std::string msg = _splitedCommand[1] + ERR_NOSUCHNICK;
+            send(getFd(), msg.c_str(), msg.size(), 0);
+            return ;
+        }
+        try
+        {
+            Channel& currentChannel = _server.getChannelbyName(_splitedCommand[2]);
+            if (!currentChannel.getOpByNick(getNickName()))
+            {
+                std::string msg = getNickName() + " :You're not channel operator\n";
+                send(getFd(), msg.c_str(), msg.size(), 0);
+            }
+            else if (currentChannel.UserIsInvited(_splitedCommand[1], 0) == 1)
+            {
+                std::string msg = _splitedCommand[1] + " :Is already invited to channel\n";
+                send(getFd(), msg.c_str(), msg.size(), 0);
+            }
+            else
+            {
+                currentChannel.getinvitedUsers().push_back(_splitedCommand[1]);
+                std::cout << currentChannel.getinvitedUsers().size() << std::endl;
+                std::string msg = _splitedCommand[1] + " :You have been invited message\n";
+                send(getFd(), msg.c_str(), msg.size(), 0);
+            }
+        }
+        catch(const std::exception& e)
+        {
+            std::string msg = _splitedCommand[2] + ERR_NOSUCHNICK;
+            send(getFd(), msg.c_str(), msg.size(), 0);
+            return ;
+        }
+        
+    }
+}
+
+void    Client::join(Channel& currentChannel)
+{
+    currentChannel.getMembers().push_back(this);
+    std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
+    std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
+    sendToAllMembers(currentChannel, msg);
+    msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] +  " :";
+    send(getFd(), msg.c_str(), msg.size(), 0);
+    it = currentChannel.getMembers().begin();
+    while (it != currentChannel.getMembers().end())
+    {
+        if (currentChannel.getOpByNick((*it)->getNickName()))
+            msg = " @" + (*it)->getNickName();
+        else
+            msg = " " + (*it)->getNickName();
+        send(getFd(), msg.c_str(), msg.size(), 0);
+        it++;
+    }
+    send(getFd(), "\n", 1, 0);
+}
+
+
+
 void    Client::joinChannels()
 {
     if (_splitedCommand[1][0] == '#')
+    {
+        try
         {
-            try
+            Channel& currentChannel =_server.getChannelbyName(_splitedCommand[1]);
+            if ((int)currentChannel.getMembers().size() >= currentChannel.getLimit() && currentChannel.getLimit() != 0)
+                send(_fd, ":Limit of Users in channel is reached\n", 38, 0);
+            else if (currentChannel.getisInviteChannel())
             {
-                Channel& currentChannel =_server.getChannelbyName(_splitedCommand[1]);
-                // if (newChannel.getisInviteChannel())
-                // {
-                    
-                // }
-                if (currentChannel.getisKeyChannel() && _splitedCommand.size() > 2)
+                if (currentChannel.getMemberByNick(_nickName))
+                    send(_fd, ":Nick is already in channel\n", 28, 0);
+                else if (currentChannel.UserIsInvited(_nickName, 1) == 0)
                 {
-                    
-                }  
-                else if (!currentChannel.getisKeyChannel())
-                {
-                    if (currentChannel.getMemberByNick(_nickName))
-                    {
-                        send(_fd, ":Nick is already in channel\n", 28, 0);
-                        return ;
-                    }
-                    currentChannel.getMembers().push_back(this);
-
-                    std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
-                    std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
-                    sendToAllMembers(currentChannel, msg);
-                    msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] +  " :";
+                    std::string msg = _splitedCommand[1] + ERR_INVITEONLYCHAN;
                     send(getFd(), msg.c_str(), msg.size(), 0);
-                    it = currentChannel.getMembers().begin();
-                    while (it != currentChannel.getMembers().end())
-                    {
-                        if (currentChannel.getOpByNick((*it)->getNickName()))
-                            msg = " @" + (*it)->getNickName();
-                        else
-                            msg = " " + (*it)->getNickName();
-                        send(getFd(), msg.c_str(), msg.size(), 0);
-                        it++;
-                    }
-                    send(getFd(), "\n", 1, 0);
-                } 
+                }
+                else
+                    join(currentChannel);
             }
-            catch (std::exception& e)
+            else if (!currentChannel.getchannelKey().empty())
             {
-                Channel newChannel(_splitedCommand[1], _server);
-
-                newChannel.getMembers().push_back(this);
-                newChannel.getOperators().push_back(this);
-                _server.getChannels().push_back(newChannel);
-                std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
-                send(getFd(), msg.c_str(), msg.size(), 0);
-                msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] + " :@" + getNickName() + "\n";
-                send(getFd(), msg.c_str(), msg.size(), 0);
-            }          
+                if (_splitedCommand.size() != 3)
+                {
+                    std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
+                    send(getFd(), msg.c_str(), msg.size(), 0);
+                    return ;
+                }
+                if (_splitedCommand[2] == currentChannel.getchannelKey())
+                    join(currentChannel);
+                else
+                    send(_fd, ":Wrong channel key\n", 19, 0);
+            }  
+            else if (currentChannel.getchannelKey().empty())
+            {
+                if (currentChannel.getMemberByNick(_nickName))
+                {
+                    send(_fd, ":Nick is already in channel\n", 28, 0);
+                    return ;
+                }
+                join(currentChannel);
+            } 
         }
+        catch (std::exception& e)
+        {
+            Channel newChannel(_splitedCommand[1], _server);
+
+            newChannel.getMembers().push_back(this);
+            newChannel.getOperators().push_back(this);
+            _server.getChannels().push_back(newChannel);
+            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
+            send(getFd(), msg.c_str(), msg.size(), 0);
+            msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] + " :@" + getNickName() + "\n";
+            send(getFd(), msg.c_str(), msg.size(), 0);
+        }          
+    }
 }
 
 void    Client::needMoreParams()
 {
-    if (_splitedCommand[0] == "PASS")
+    if (_splitedCommand[0] == "PASS" || _splitedCommand[0] == "USER" || _splitedCommand[0] == "KICK"
+        || _splitedCommand[0] == "MODE" || _splitedCommand[0] == "INVITE")
     {
         std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
         send(getFd(), msg.c_str(), msg.size(), 0);
@@ -606,28 +688,13 @@ void    Client::needMoreParams()
         std::string msg = ERR_NONICKNAMEGIVEN;
         send(getFd(), msg.c_str(), msg.size(), 0);
     }
-    else if (_splitedCommand[0] == "USER")
-    {
-        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
-        send(getFd(), msg.c_str(), msg.size(), 0);
-    }
-    else if (_splitedCommand[0] == "KICK")
-    {
-        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
-        send(getFd(), msg.c_str(), msg.size(), 0);
-    }
-    else if (_splitedCommand[0] == "MODE")
-    {
-        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
-        send(getFd(), msg.c_str(), msg.size(), 0);
-    }
 }
 
 bool    Client::isValidCommand()
 {
     if (_splitedCommand[0] == "PASS" || _splitedCommand[0] == "NICK" || _splitedCommand[0] == "USER"
         || _splitedCommand[0] == "KICK" || _splitedCommand[0] == "MODE" || _splitedCommand[0] == "TOPIC"
-        || _splitedCommand[0] == "PRIVMSG")
+        || _splitedCommand[0] == "PRIVMSG" || _splitedCommand[0] == "INVITE")
         return true;
     return false;
 }
