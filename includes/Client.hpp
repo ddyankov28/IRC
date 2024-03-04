@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 12:39:27 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:29:39 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,6 +75,7 @@ class Client
     void    sendToAllMembers(Channel& currentChannel, std::string msg);
     void    handleFourParams();
     void    handleLimit();
+    void    changeTopic();
     void    handleKeyChannel();
     bool    stringHasOnlyDigits();
     bool    isValidCommand();

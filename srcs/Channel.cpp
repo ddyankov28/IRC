@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:25:45 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:36:17 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,12 @@ std::vector<std::string>&    Channel::getinvitedUsers()
     return _invitedUsers;
 }
 
+bool    Channel::getisTopicRestricted()
+{
+    return _isTopicRestricted;
+}
+
+
 Client* Channel::getMemberByNick(std::string Nick)
 {
     std::vector<Client *>::iterator it = _members.begin();
@@ -112,6 +118,11 @@ void    Channel::setisTopicRestricted(char c)
         _isTopicRestricted = false;
     else
         _isTopicRestricted = true;
+}
+
+void    Channel::setTopic(std::string newTopic)
+{
+    _topic = newTopic;
 }
 
 void    Channel::setlimit(char c, std::string limit)

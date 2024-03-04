@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:25:27 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:40:15 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,6 +232,8 @@ void    Client::checkFeatures()
         kickUsers();
     else if (_splitedCommand[0] == "INVITE")
         inviteUsers();
+    else if (_splitedCommand[0] == "TOPIC")
+        changeTopic();
     else if (_splitedCommand[0] == "MODE")
     {
         if (_splitedCommand.size() == 1) // FIXED (WE RETURNED BUT DIDNT ERASE THE PREVIOUS COMMAND)
@@ -461,6 +463,51 @@ void    Client::handleMode()
         send(_fd, ":Too many arguments to MODE\n", 28, 0);
 }
 
+void    Client::changeTopic()
+{
+    if (_splitedCommand.size() == 1)
+        return ;
+    else if (_splitedCommand.size() == 2)
+    {
+        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
+    else
+    {
+        try
+        {
+            Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
+            if (!currentChannel.getisTopicRestricted())
+            {
+                currentChannel.setTopic(_splitedCommand[2]);
+                std::string msg = ":Setting new Topic message\n";
+                send(getFd(), msg.c_str(), msg.size(), 0);
+            }
+            else
+            {
+                if (!currentChannel.getOpByNick(getNickName()))
+                {
+                    std::string msg = getNickName() + " :You're not channel operator\n";
+                    send(getFd(), msg.c_str(), msg.size(), 0);
+                }
+                else
+                {
+                    currentChannel.setTopic(_splitedCommand[2]);
+                    std::string msg = ":Setting new Topic message\n";
+                    send(getFd(), msg.c_str(), msg.size(), 0);
+                }
+            }
+        }
+        catch(const std::exception& e)
+        {
+            std::string msg = _splitedCommand[2] + ERR_NOSUCHNICK;
+            send(getFd(), msg.c_str(), msg.size(), 0);
+            return ;
+        }
+        
+    }
+}
+
 void    Client::kickUsers()
 {
     if (_splitedCommand.size() == 1)
@@ -677,7 +724,7 @@ void    Client::joinChannels()
 void    Client::needMoreParams()
 {
     if (_splitedCommand[0] == "PASS" || _splitedCommand[0] == "USER" || _splitedCommand[0] == "KICK"
-        || _splitedCommand[0] == "MODE" || _splitedCommand[0] == "INVITE")
+        || _splitedCommand[0] == "MODE" || _splitedCommand[0] == "INVITE" || _splitedCommand[0] == "TOPIC")
     {
         std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
         send(getFd(), msg.c_str(), msg.size(), 0);

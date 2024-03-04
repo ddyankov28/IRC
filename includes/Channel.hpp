@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:22:35 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/04 14:35:36 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ class Channel
         std::string                 getChannelName();
         bool                        getisInviteChannel();
         bool                        getisKeyChannel();
+        bool                        getisTopicRestricted();
         int                         getLimit();
         std::string                 getchannelKey();
         std::vector<Client *>&      getMembers();
@@ -54,6 +55,7 @@ class Channel
 
         void                        setisInviteChannel(char c);
         void                        setisTopicRestricted(char c);
+        void                        setTopic(std::string newTopic);
         void                        setlimit(char c, std::string limit);
         void                        setKeyChannel(char c, std::string key);
         void                        setOperator(char c, std::string Nickname);
