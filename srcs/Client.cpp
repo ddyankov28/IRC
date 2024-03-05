@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 15:40:18 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/05 17:43:24 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void    Client::setUserName(std::string userName)
 {
     if (_userName != "")
     {
-        std::string msg = ":Username changed to " + _splitedCommand[1] + "\n";
+        std::string msg = ":You may not reregister\n";
         send(_fd, msg.c_str(), msg.size(), 0);
     }
     _userName = userName;
@@ -62,7 +62,7 @@ void    Client::setNickName(std::string& nickName)
 {
     if (_nickName != "")
     {
-        std::string msg = ":Nickname changed to " + _splitedCommand[1] + "\n";
+        std::string msg = ":" + _nickName + "!~ " + _splitedCommand[0] + " :" + _splitedCommand[1] + "\n";
         send(_fd, msg.c_str(), msg.size(), 0);
     }
     _nickName = nickName;
