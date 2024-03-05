@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/28 16:16:02 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/05 13:10:36 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void    Server::acceptAndAddConnections()
 
 void    Server::itsClient(int i)
 {
-    char buffer[512];
+    char buffer[513];
     std::string buff;
     Client* currentCli = getClient(_polls[i].fd);
     
@@ -59,7 +59,9 @@ void    Server::itsClient(int i)
         throw std::runtime_error("Could not find Client");
     int bytes = recv(_polls[i].fd, buffer, sizeof(buffer), 0);
     // Connection closed or Error
-    if (bytes <= 0)
+    if (bytes > 512)
+        send(_polls[i].fd, "Message limit is 512 characters\n", 32, 0);
+    else if (bytes <= 0)
     {
         if (!bytes)
         {
@@ -68,6 +70,8 @@ void    Server::itsClient(int i)
         }
         else
             perror("Error");
+        removeClient(_polls[i].fd);
+        std::cout << RED << "Connection " << _polls[i].fd << " was closed" << RESET << std::endl;
         close(_polls[i].fd);
         _fdsCounter--;
         std::cout << _clients.size() << std::endl;
@@ -80,7 +84,6 @@ void    Server::itsClient(int i)
         {
             // std::cout << "THERE WAS CTRL + D PRESSED " << std::endl;
             currentCli->setBuff(currentCli->getBuff() + buff);
-            std::cout << "After ctrl D "<< currentCli->getBuff() << std::endl;
         }
         else
         {

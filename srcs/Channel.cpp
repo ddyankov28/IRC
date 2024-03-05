@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:36:17 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:45:29 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Channel.hpp"
 
-Channel::Channel(std::string name, Server& server) : _name(name), _server(server), _topic(""), _isInviteChannel(false), _isTopicRestricted(false), _channelKey(""), _isKeyChannel(false), _limit(0)
+Channel::Channel(std::string name, Server& server) : _name(name), _server(server), _topic(""), _isInviteChannel(false), _isTopicRestricted(false), _channelKey(""), _limit(0)
 {
 }
 
@@ -30,7 +30,6 @@ Channel&  Channel::operator=(const Channel& inst)
     _isInviteChannel = inst._isInviteChannel;
     _isTopicRestricted = inst._isTopicRestricted;
     _channelKey = inst._channelKey;
-    _isKeyChannel = inst._isKeyChannel;
     _limit = inst._limit;
     return *this;
 }
@@ -43,11 +42,6 @@ std::string Channel::getChannelName()
 bool    Channel::getisInviteChannel()
 {
     return _isInviteChannel;
-}
-
-bool    Channel::getisKeyChannel()
-{
-    return _isKeyChannel;
 }
 
 std::string Channel::getchannelKey()
@@ -79,6 +73,10 @@ bool    Channel::getisTopicRestricted()
     return _isTopicRestricted;
 }
 
+std::string Channel::getTopic()
+{
+    return _topic;
+}
 
 Client* Channel::getMemberByNick(std::string Nick)
 {
@@ -173,14 +171,11 @@ void    Channel::setOperator(char c, std::string Nickname)
 
 int Channel::UserIsInvited(std::string Nick, int sw)
 {
-    std::cout << Nick << std::endl;
     std::vector<std::string>::iterator it;
     for (it = _invitedUsers.begin(); it != _invitedUsers.end(); ++it)
     {
         if (*it == Nick)
-        {
-            std::cout << *it << std::endl;
-            
+        {  
             if (sw == 1)
                 _invitedUsers.erase(it);
             return 1;

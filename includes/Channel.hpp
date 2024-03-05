@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:35:36 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:45:33 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,6 @@ class Channel
         bool                        _isInviteChannel;
         bool                        _isTopicRestricted;
         std::string                 _channelKey;
-        bool                        _isKeyChannel;
         int                         _limit;
         
     public:
@@ -42,8 +41,8 @@ class Channel
         
         std::string                 getChannelName();
         bool                        getisInviteChannel();
-        bool                        getisKeyChannel();
         bool                        getisTopicRestricted();
+        std::string                 getTopic();
         int                         getLimit();
         std::string                 getchannelKey();
         std::vector<Client *>&      getMembers();

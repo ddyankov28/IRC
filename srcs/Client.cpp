@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 14:40:15 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:49:29 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -467,21 +467,34 @@ void    Client::changeTopic()
 {
     if (_splitedCommand.size() == 1)
         return ;
-    else if (_splitedCommand.size() == 2)
-    {
-        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
-        send(getFd(), msg.c_str(), msg.size(), 0);
-    }
     else
     {
         try
         {
             Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
-            if (!currentChannel.getisTopicRestricted())
+            if (_splitedCommand.size() == 2)
+            {
+                if (currentChannel.getTopic().empty())
+                {
+                    std::string msg = ":42_IRC " + getNickName() + " " + _splitedCommand[1] + " :No topic is set for this channel\n";
+                    send(_fd, msg.c_str(), msg.size(), 0);                
+                }
+                else
+                {
+                    std::string msg = ":42_IRC " + getNickName() + " " + _splitedCommand[1] + " :" + currentChannel.getTopic() + "\n";
+                    send(_fd, msg.c_str(), msg.size(), 0);
+                }
+            }
+            else if (_splitedCommand.size() != 3)
+            {
+                std::string msg = _splitedCommand[0] + " :Too many parameters\n";
+                send(_fd, msg.c_str(), msg.size(), 0);                
+            }
+            else if (!currentChannel.getisTopicRestricted())
             {
                 currentChannel.setTopic(_splitedCommand[2]);
-                std::string msg = ":Setting new Topic message\n";
-                send(getFd(), msg.c_str(), msg.size(), 0);
+                std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " :" + _splitedCommand[2] + "\n";
+                sendToAllMembers(currentChannel, msg);
             }
             else
             {
@@ -493,8 +506,8 @@ void    Client::changeTopic()
                 else
                 {
                     currentChannel.setTopic(_splitedCommand[2]);
-                    std::string msg = ":Setting new Topic message\n";
-                    send(getFd(), msg.c_str(), msg.size(), 0);
+                    std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " :" + _splitedCommand[2] + "\n";
+                    sendToAllMembers(currentChannel, msg);
                 }
             }
         }
@@ -625,8 +638,13 @@ void    Client::inviteUsers()
             else
             {
                 currentChannel.getinvitedUsers().push_back(_splitedCommand[1]);
-                std::string msg = _splitedCommand[1] + " :You have been invited message\n";
+                std::string msg = ":42_IRC " + _nickName + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
+                msg += ":42_IRC NOTICE @" + _splitedCommand[2] + " :" + _nickName + " invited " + _splitedCommand[1] + " into channel " + _splitedCommand[2] + "\n";
                 send(getFd(), msg.c_str(), msg.size(), 0);
+                Client *receiver = _server.getClientByNick(_splitedCommand[1]);
+                msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " :" + _splitedCommand[2] + "\n";
+                send(receiver->getFd(), msg.c_str(), msg.size(), 0);
+                
             }
         }
         catch(const std::exception& e)
@@ -687,14 +705,17 @@ void    Client::joinChannels()
             {
                 if (_splitedCommand.size() != 3)
                 {
-                    std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
+                    std::string msg = _splitedCommand[1] + " :Cannot join channel (+k)\n";
                     send(getFd(), msg.c_str(), msg.size(), 0);
                     return ;
                 }
                 if (_splitedCommand[2] == currentChannel.getchannelKey())
                     join(currentChannel);
                 else
-                    send(_fd, ":Wrong channel key\n", 19, 0);
+                {
+                    std::string msg = _splitedCommand[1] + " :Cannot join channel (+k)\n";
+                    send(getFd(), msg.c_str(), msg.size(), 0);
+                }
             }  
             else if (currentChannel.getchannelKey().empty())
             {
@@ -787,7 +808,7 @@ void    Client::checkCommand()
         }
         else if (_splitedCommand[0] == "USER")
         {
-            if (_splitedCommand.size() > 2)
+            if (_splitedCommand.size() > 2 && _splitedCommand[2] != "0")
             {
                 send(_fd, "USER :Too much parameters\n", 26, 0);
                 return ;
