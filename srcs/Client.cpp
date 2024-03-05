@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 14:29:38 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/05 15:05:37 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,58 +138,6 @@ void    Client::sendMsgInChannel(Channel& RecieverChannel)
     }
 }
 
-void    Client::privmsg()
-{
-    int isChannel = 0;
-        Client* Reciever = _server.getClientByNick(_splitedCommand[1]);
-        try
-        {
-            Channel& RecieverChannel = _server.getChannelbyName(_splitedCommand[1]);
-            (void)RecieverChannel;
-        }
-        catch(const std::exception& e)
-        {
-            isChannel = 1;
-        }
-        if (!Reciever && isChannel)
-        {
-            std::string msg = _splitedCommand[1] + ERR_NOSUCHNICK;
-            send(getFd(), msg.c_str(), msg.size(), 0);
-        }
-        else if (_splitedCommand.size() == 2)
-        {
-            std::string msg = ERR_NOTEXTTOSEND;
-            send(getFd(), msg.c_str(), msg.size(), 0);
-        }
-        else if (_splitedCommand[2][0] != ':')
-            send(getFd(), ":Wrong Format of Message\n", 25, 0);
-        else if(isChannel == 0)
-        {
-            Channel& RecieverChannel = _server.getChannelbyName(_splitedCommand[1]);
-            if (ClientInChannel(RecieverChannel))
-                sendMsgInChannel(RecieverChannel);
-            else
-            {
-                std::string msg = _splitedCommand[1] + ERR_NOTONCHANNEL;
-                send(_fd, msg.c_str(), msg.size(), 0);
-            }
-        }
-        else
-        {
-            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " ";
-            send(Reciever->getFd(), msg.c_str(), msg.size(), 0);
-            size_t i = 2;
-            while (i < _splitedCommand.size())
-            {
-                send(Reciever->getFd(), _splitedCommand[i].c_str() , _splitedCommand[i].size(), 0);
-                if (i < _splitedCommand.size() - 1)
-                    send(Reciever->getFd(), " ", 1, 0);
-                i++;
-            }
-            send(Reciever->getFd(), "\n", 1, 0);
-        }
-}
-
 void    Client::checkFeatures()
 {
     if (_splitedCommand.size() < 1)
@@ -217,7 +165,10 @@ void    Client::checkFeatures()
             return ;
         }
         if (_splitedCommand.size() == 2)
-            send(getFd(), ":No Nick/Mode provided\n", 23, 0);
+        {
+            _splitedCommand.erase(_splitedCommand.begin(), _splitedCommand.end());
+            return ;
+        }
         else if (isChannelOperator())
             handleMode();
         else
@@ -234,25 +185,56 @@ void    Client::checkFeatures()
     _splitedCommand.erase(_splitedCommand.begin(), _splitedCommand.end());
 }
 
-void    Client::join(Channel& currentChannel)
+void    Client::privmsg()
 {
-    currentChannel.getMembers().push_back(this);
-    std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
-    std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
-    sendToAllMembers(currentChannel, msg);
-    msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] +  " :";
-    send(getFd(), msg.c_str(), msg.size(), 0);
-    it = currentChannel.getMembers().begin();
-    while (it != currentChannel.getMembers().end())
+    int isChannel = 0;
+    Client* Reciever = _server.getClientByNick(_splitedCommand[1]);
+    try
     {
-        if (currentChannel.getOpByNick((*it)->getNickName()))
-            msg = " @" + (*it)->getNickName();
-        else
-            msg = " " + (*it)->getNickName();
-        send(getFd(), msg.c_str(), msg.size(), 0);
-        it++;
+        Channel& RecieverChannel = _server.getChannelbyName(_splitedCommand[1]);
+        (void)RecieverChannel;
     }
-    send(getFd(), "\n", 1, 0);
+    catch(const std::exception& e)
+    {
+        isChannel = 1;
+    }
+    if (!Reciever && isChannel)
+    {
+        std::string msg = _splitedCommand[1] + ERR_NOSUCHNICK;
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
+    else if (_splitedCommand.size() == 2)
+    {
+        std::string msg = ERR_NOTEXTTOSEND;
+        send(getFd(), msg.c_str(), msg.size(), 0);
+    }
+    else if (_splitedCommand[2][0] != ':')
+        send(getFd(), ":Wrong Format of Message\n", 25, 0);
+    else if(isChannel == 0)
+    {
+        Channel& RecieverChannel = _server.getChannelbyName(_splitedCommand[1]);
+        if (ClientInChannel(RecieverChannel))
+            sendMsgInChannel(RecieverChannel);
+        else
+        {
+            std::string msg = _splitedCommand[1] + ERR_NOTONCHANNEL;
+            send(_fd, msg.c_str(), msg.size(), 0);
+        }
+    }
+    else
+    {
+        std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " ";
+        send(Reciever->getFd(), msg.c_str(), msg.size(), 0);
+        size_t i = 2;
+        while (i < _splitedCommand.size())
+        {
+            send(Reciever->getFd(), _splitedCommand[i].c_str() , _splitedCommand[i].size(), 0);
+            if (i < _splitedCommand.size() - 1)
+                send(Reciever->getFd(), " ", 1, 0);
+            i++;
+        }
+        send(Reciever->getFd(), "\n", 1, 0);
+    }
 }
 
 void    Client::joinChannels()
@@ -317,32 +299,56 @@ void    Client::joinChannels()
     }
 }
 
-bool    Client::ClientInChannel(Channel& channel)
+void    Client::join(Channel& currentChannel)
 {
-    if (channel.getMemberByNick(_nickName) != NULL)
-        return true;
-    else
-        return false;
+    currentChannel.getMembers().push_back(this);
+    std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
+    std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
+    sendToAllMembers(currentChannel, msg);
+    msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] +  " :";
+    send(getFd(), msg.c_str(), msg.size(), 0);
+    it = currentChannel.getMembers().begin();
+    while (it != currentChannel.getMembers().end())
+    {
+        if (currentChannel.getOpByNick((*it)->getNickName()))
+            msg = " @" + (*it)->getNickName();
+        else
+            msg = " " + (*it)->getNickName();
+        send(getFd(), msg.c_str(), msg.size(), 0);
+        it++;
+    }
+    send(getFd(), "\n", 1, 0);
 }
 
-bool    Client::isChannelOperator()
+void    Client::handleMode()
 {
-    try
+    if (_splitedCommand.size() == 3 || _splitedCommand.size() == 4)
     {
-        Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
-        std::vector<Client *>::iterator it = currentChannel.getOperators().begin();
-        while (it != currentChannel.getOperators().end())
+        if (_splitedCommand[2].size() != 2)
         {
-            if ((*it)->getNickName() == _nickName) //you are operator
-                return true;
-            it++;
+            std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
+            send(getFd(), msg.c_str(), msg.size(), 0);
+        }
+        else if (_splitedCommand[2][0] == '-' || _splitedCommand[2][0] == '+')
+        {
+            if (_splitedCommand[2][1] == 'i' || _splitedCommand[2][1] == 't')
+                handleIandT();
+            else if (_splitedCommand[2][1] == 'o' || _splitedCommand[2][1] == 'l' || _splitedCommand[2][1] == 'k')
+                handleFourParams();
+            else
+            {
+                std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
+                send(getFd(), msg.c_str(), msg.size(), 0);
+            }
+        }
+        else
+        {
+            std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
+            send(getFd(), msg.c_str(), msg.size(), 0);
         }
     }
-    catch (std::exception &e)
-    {
-        return false;
-    }
-    return false;
+    else
+        send(_fd, ":Too many arguments to MODE\n", 28, 0);
 }
 
 void    Client::handleIandT()
@@ -351,25 +357,46 @@ void    Client::handleIandT()
         send(_fd, ":Too many parameters\n", 21, 0);
     else if (_splitedCommand[2][1] == 'i')
     {
-        try
-        {
+        try {
             Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
             currentChannel.setisInviteChannel(_splitedCommand[2][0]);
             std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
             sendToAllMembers(currentChannel, msg);
         }
         catch(const std::exception& e)
-        {
-            return ;
-        }
+        { return ; }
     }
     else
     {
-        try
-        {
+        try {
             Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
             currentChannel.setisTopicRestricted(_splitedCommand[2][0]);
             std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
+            sendToAllMembers(currentChannel, msg);
+        }
+        catch(const std::exception& e)
+        { return ; }
+    }
+}
+
+void    Client::handleFourParams()
+{
+    if (_splitedCommand[2][1] == 'l')
+        handleLimit();
+    else if (_splitedCommand[2][1] == 'k')
+        handleKeyChannel();
+    else
+    {
+        if (_splitedCommand.size() != 4)
+        {
+            send(_fd, ":Not enough parameters\n", 23, 0);
+            return ;
+        }
+        try
+        {
+            Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
+            currentChannel.setOperator(_splitedCommand[2][0], _splitedCommand[3]);
+            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + " " + _splitedCommand[3] + "\n";
             sendToAllMembers(currentChannel, msg);
         }
         catch(const std::exception& e)
@@ -377,16 +404,6 @@ void    Client::handleIandT()
             return ;
         }
     }
-}
-
-bool    Client::stringHasOnlyDigits()
-{
-    for (unsigned int i = 0; i < _splitedCommand[3].size(); i++)
-    {
-        if (!isdigit(_splitedCommand[3][i]))
-            return false;
-    }
-    return true;
 }
 
 void    Client::handleLimit()
@@ -463,63 +480,45 @@ void    Client::handleKeyChannel()
     }
 }
 
-void    Client::handleFourParams()
+bool    Client::ClientInChannel(Channel& channel)
 {
-    if (_splitedCommand[2][1] == 'l')
-        handleLimit();
-    else if (_splitedCommand[2][1] == 'k')
-        handleKeyChannel();
+    if (channel.getMemberByNick(_nickName) != NULL)
+        return true;
     else
-    {
-        if (_splitedCommand.size() != 4)
-        {
-            send(_fd, ":Not enough parameters\n", 23, 0);
-            return ;
-        }
-        try
-        {
-            Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
-            currentChannel.setOperator(_splitedCommand[2][0], _splitedCommand[3]);
-            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + " " + _splitedCommand[3] + "\n";
-            sendToAllMembers(currentChannel, msg);
-        }
-        catch(const std::exception& e)
-        {
-            return ;
-        }
-    }
+        return false;
 }
 
-void    Client::handleMode()
+bool    Client::isChannelOperator()
 {
-    if (_splitedCommand.size() == 3 || _splitedCommand.size() == 4)
+    try
     {
-        if (_splitedCommand[2].size() != 2)
+        Channel& currentChannel = _server.getChannelbyName(_splitedCommand[1]);
+        std::vector<Client *>::iterator it = currentChannel.getOperators().begin();
+        while (it != currentChannel.getOperators().end())
         {
-            std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
-            send(getFd(), msg.c_str(), msg.size(), 0);
-        }
-        else if (_splitedCommand[2][0] == '-' || _splitedCommand[2][0] == '+')
-        {
-            if (_splitedCommand[2][1] == 'i' || _splitedCommand[2][1] == 't')
-                handleIandT();
-            else if (_splitedCommand[2][1] == 'o' || _splitedCommand[2][1] == 'l' || _splitedCommand[2][1] == 'k')
-                handleFourParams();
-            else
-            {
-                std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
-                send(getFd(), msg.c_str(), msg.size(), 0);
-            }
-        }
-        else
-        {
-            std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
-            send(getFd(), msg.c_str(), msg.size(), 0);
+            if ((*it)->getNickName() == _nickName) //you are operator
+                return true;
+            it++;
         }
     }
-    else
-        send(_fd, ":Too many arguments to MODE\n", 28, 0);
+    catch (std::exception &e)
+    {
+        return false;
+    }
+    return false;
 }
+
+bool    Client::stringHasOnlyDigits()
+{
+    for (unsigned int i = 0; i < _splitedCommand[3].size(); i++)
+    {
+        if (!isdigit(_splitedCommand[3][i]))
+            return false;
+    }
+    return true;
+}
+
+
 
 void    Client::changeTopic()
 {

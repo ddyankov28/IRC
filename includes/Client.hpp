@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 14:11:23 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/05 14:36:32 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,11 +65,11 @@ class Client
 
 		void						privmsg();
 		void						join(Channel& currentChannel);
-		void						handleKeyChannel();
 		void						joinChannels();
 		void						kickUsers();
 		void						inviteUsers();
 		void						changeTopic();
+		void						handleKeyChannel();
 		void						handleIandT();
 		void						handleFourParams();
 		void						handleMode();
