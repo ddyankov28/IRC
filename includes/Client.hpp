@@ -6,7 +6,7 @@
 /*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 14:25:58 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 14:36:32 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/05 15:40:39 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,26 +61,29 @@ class Client
 		int							moreLinesInBuffer();
 		void						splitByLine();
 		void						sendMsgInChannel(Channel& RecieverChannel);
-		void						checkFeatures();
+		void						sendToAllMembers(Channel& currentChannel, std::string msg);
 
+		void						checkFeatures();
 		void						privmsg();
-		void						join(Channel& currentChannel);
 		void						joinChannels();
+		void						join(Channel& currentChannel);
 		void						kickUsers();
+		int							kick(Channel& currentChannel, std::vector<Client *>::iterator itMembers);
 		void						inviteUsers();
+		void						inviteOnChannel(Channel& currentChannel);
 		void						changeTopic();
-		void						handleKeyChannel();
+		int							startMode();
+		void						handleMode();
 		void						handleIandT();
 		void						handleFourParams();
-		void						handleMode();
+		void						handleLimit();
+		void						handleKeyChannel();
 
 		void						checkIfRegistered();
 		void						checkCommand();
 		bool						isChannelOperator();
 		bool						ClientInChannel(Channel& channel);
 		void						needMoreParams();
-		void						sendToAllMembers(Channel& currentChannel, std::string msg);
-		void						handleLimit();
 		bool						stringHasOnlyDigits();
 		bool						isValidCommand();
 
