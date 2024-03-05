@@ -3,18 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 12:45:29 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/05 13:56:01 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Channel.hpp"
 
 Channel::Channel(std::string name, Server& server) : _name(name), _server(server), _topic(""), _isInviteChannel(false), _isTopicRestricted(false), _channelKey(""), _limit(0)
-{
-}
+{}
 
 Channel::~Channel()
 {}
@@ -34,49 +33,32 @@ Channel&  Channel::operator=(const Channel& inst)
     return *this;
 }
 
-std::string Channel::getChannelName()
-{
-    return _name;
-}
+std::string Channel::getChannelName() const
+{ return _name; }
 
-bool    Channel::getisInviteChannel()
-{
-    return _isInviteChannel;
-}
+bool    Channel::getisInviteChannel() const
+{ return _isInviteChannel; }
 
-std::string Channel::getchannelKey()
-{
-    return _channelKey;
-}
+bool    Channel::getisTopicRestricted() const
+{ return _isTopicRestricted; }
 
-int Channel::getLimit()
-{
-    return _limit;
-}
+std::string Channel::getTopic() const
+{ return _topic; }
+
+int Channel::getLimit() const
+{ return _limit; }
+
+std::string Channel::getchannelKey() const
+{ return _channelKey; }
 
 std::vector<Client *>&    Channel::getMembers()
-{
-    return _members;
-}
+{ return _members; }
 
 std::vector<Client *>&    Channel::getOperators()
-{
-    return _operators;
-}
+{ return _operators; }
+
 std::vector<std::string>&    Channel::getinvitedUsers()
-{
-    return _invitedUsers;
-}
-
-bool    Channel::getisTopicRestricted()
-{
-    return _isTopicRestricted;
-}
-
-std::string Channel::getTopic()
-{
-    return _topic;
-}
+{ return _invitedUsers; }
 
 Client* Channel::getMemberByNick(std::string Nick)
 {
@@ -165,8 +147,7 @@ void    Channel::setOperator(char c, std::string Nickname)
     catch(const std::exception& e)
     {
         return ;
-    }
-    
+    } 
 }
 
 int Channel::UserIsInvited(std::string Nick, int sw)

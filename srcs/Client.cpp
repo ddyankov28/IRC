@@ -3,30 +3,50 @@
 /*                                                        :::      ::::::::   */
 /*   Client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 12:49:29 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/05 14:29:38 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "../includes/Client.hpp"
 
-Client::Client(int cliFd, Server& server) : _fd(cliFd), _userName(""), _nickName(""), _command(""), _buff(""), _isRegistered(false), _registerSteps(0), _passIsCorrect(false), _server(server)
+Client::Client(int cliFd, Server& server) : _fd(cliFd), _userName(""), _nickName(""), _command(""), _buff(""), _isRegistered(false), _passIsCorrect(false), _registerSteps(0), _server(server)
 {}
 
 Client::~Client()
 {}
 
+int Client::getFd() const
+{ return _fd; }
+
+std::string Client::getIp() const
+{ return _ip; }
+
+std::string Client::getUserName() const
+{ return _userName; }
+
+std::string Client::getNickName() const
+{ return _nickName; }
+
+std::string Client::getCliCommand() const
+{ return _command; }
+
+std::string Client::getBuff() const
+{ return _buff; }
+
+bool    Client::getIsRegistered() const
+{ return _isRegistered; }
+
+std::vector<std::string> Client::getSplitMoreLines() const
+{ return _splitMoreLines; }
+
 void    Client::setFd(int pollFd)
-{
-    _fd = pollFd;
-}
+{ _fd = pollFd; }
 
 void    Client::setIp(std::string ip)
-{
-    _ip = ip;
-}
+{ _ip = ip; }
 
 void    Client::setUserName(std::string userName)
 {
@@ -49,54 +69,13 @@ void    Client::setNickName(std::string& nickName)
 }
 
 void    Client::setCliCommand(std::string msg)
-{
-    _command = msg;
-}
+{ _command = msg; }
 
-int Client::getFd()
-{
-    return _fd;
-}
-
-std::string Client::getIp()
-{
-    return _ip;
-}
-
-std::string Client::getUserName()
-{
-    return _userName;
-}
-
-std::string Client::getNickName()
-{
-    return _nickName;
-}
-
-std::string Client::getCliCommand()
-{
-    return _command;
-}
-
-bool    Client::getIsRegistered()
-{
-    return _isRegistered;
-}
+void    Client::setPassword(std::string pass)
+{ _password = pass; }
 
 void    Client::setBuff(std::string add)
-{
-    _buff = add;
-}
-
-std::string Client::getBuff()
-{
-    return _buff;    
-}
-
-std::vector<std::string> Client::getSplitMoreLines()
-{
-    return _splitMoreLines;
-}
+{ _buff = add; }
 
 void    Client::splitCommand()
 {
@@ -112,7 +91,6 @@ void    Client::splitCommand()
         it++;
     }
     std::cout << _splitedCommand.size() << std::endl;*/
-
 }
 
 int    Client::moreLinesInBuffer()
@@ -135,11 +113,6 @@ void    Client::splitByLine()
     {
         _splitMoreLines.push_back(line);        
     }
-}
-
-void    Client::setPassword(std::string pass)
-{
-    _password = pass;
 }
 
 void    Client::sendMsgInChannel(Channel& RecieverChannel)
@@ -165,18 +138,9 @@ void    Client::sendMsgInChannel(Channel& RecieverChannel)
     }
 }
 
-void    Client::checkFeatures()
+void    Client::privmsg()
 {
-    if (_splitedCommand.size() < 1)
-        return;
-    if (_splitedCommand[0] == "PRIVMSG" && _splitedCommand.size() == 1)
-    {
-        std::string msg = ERR_NORECIPIENT + _splitedCommand[0] + "\n";
-        send(getFd(), msg.c_str(), msg.size(), 0);
-    }
-    else if (_splitedCommand[0] == "PRIVMSG")
-    {
-        int isChannel = 0;
+    int isChannel = 0;
         Client* Reciever = _server.getClientByNick(_splitedCommand[1]);
         try
         {
@@ -187,7 +151,6 @@ void    Client::checkFeatures()
         {
             isChannel = 1;
         }
-        
         if (!Reciever && isChannel)
         {
             std::string msg = _splitedCommand[1] + ERR_NOSUCHNICK;
@@ -225,7 +188,19 @@ void    Client::checkFeatures()
             }
             send(Reciever->getFd(), "\n", 1, 0);
         }
+}
+
+void    Client::checkFeatures()
+{
+    if (_splitedCommand.size() < 1)
+        return;
+    if (_splitedCommand[0] == "PRIVMSG" && _splitedCommand.size() == 1)
+    {
+        std::string msg = ERR_NORECIPIENT + _splitedCommand[0] + "\n";
+        send(getFd(), msg.c_str(), msg.size(), 0);
     }
+    else if (_splitedCommand[0] == "PRIVMSG")
+        privmsg();
     else if (_splitedCommand[0] == "JOIN")
         joinChannels();
     else if (_splitedCommand[0] == "KICK")
@@ -257,6 +232,89 @@ void    Client::checkFeatures()
         send(_fd, msg.c_str(), msg.size(), 0);
     }
     _splitedCommand.erase(_splitedCommand.begin(), _splitedCommand.end());
+}
+
+void    Client::join(Channel& currentChannel)
+{
+    currentChannel.getMembers().push_back(this);
+    std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
+    std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
+    sendToAllMembers(currentChannel, msg);
+    msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] +  " :";
+    send(getFd(), msg.c_str(), msg.size(), 0);
+    it = currentChannel.getMembers().begin();
+    while (it != currentChannel.getMembers().end())
+    {
+        if (currentChannel.getOpByNick((*it)->getNickName()))
+            msg = " @" + (*it)->getNickName();
+        else
+            msg = " " + (*it)->getNickName();
+        send(getFd(), msg.c_str(), msg.size(), 0);
+        it++;
+    }
+    send(getFd(), "\n", 1, 0);
+}
+
+void    Client::joinChannels()
+{
+    if (_splitedCommand[1][0] == '#')
+    {
+        try
+        {
+            Channel& currentChannel =_server.getChannelbyName(_splitedCommand[1]);
+            if ((int)currentChannel.getMembers().size() >= currentChannel.getLimit() && currentChannel.getLimit() != 0)
+                send(_fd, ":Limit of Users in channel is reached\n", 38, 0);
+            else if (currentChannel.getisInviteChannel())
+            {
+                if (currentChannel.getMemberByNick(_nickName))
+                    send(_fd, ":Nick is already in channel\n", 28, 0);
+                else if (currentChannel.UserIsInvited(_nickName, 1) == 0)
+                {
+                    std::string msg = _splitedCommand[1] + ERR_INVITEONLYCHAN;
+                    send(getFd(), msg.c_str(), msg.size(), 0);
+                }
+                else
+                    join(currentChannel);
+            }
+            else if (!currentChannel.getchannelKey().empty())
+            {
+                if (_splitedCommand.size() != 3)
+                {
+                    std::string msg = _splitedCommand[1] + " :Cannot join channel (+k)\n";
+                    send(getFd(), msg.c_str(), msg.size(), 0);
+                    return ;
+                }
+                if (_splitedCommand[2] == currentChannel.getchannelKey())
+                    join(currentChannel);
+                else
+                {
+                    std::string msg = _splitedCommand[1] + " :Cannot join channel (+k)\n";
+                    send(getFd(), msg.c_str(), msg.size(), 0);
+                }
+            }  
+            else if (currentChannel.getchannelKey().empty())
+            {
+                if (currentChannel.getMemberByNick(_nickName))
+                {
+                    send(_fd, ":Nick is already in channel\n", 28, 0);
+                    return ;
+                }
+                join(currentChannel);
+            } 
+        }
+        catch (std::exception& e)
+        {
+            Channel newChannel(_splitedCommand[1], _server);
+
+            newChannel.getMembers().push_back(this);
+            newChannel.getOperators().push_back(this);
+            _server.getChannels().push_back(newChannel);
+            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
+            send(getFd(), msg.c_str(), msg.size(), 0);
+            msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] + " :@" + getNickName() + "\n";
+            send(getFd(), msg.c_str(), msg.size(), 0);
+        }          
+    }
 }
 
 bool    Client::ClientInChannel(Channel& channel)
@@ -657,90 +715,11 @@ void    Client::inviteUsers()
     }
 }
 
-void    Client::join(Channel& currentChannel)
-{
-    currentChannel.getMembers().push_back(this);
-    std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
-    std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
-    sendToAllMembers(currentChannel, msg);
-    msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] +  " :";
-    send(getFd(), msg.c_str(), msg.size(), 0);
-    it = currentChannel.getMembers().begin();
-    while (it != currentChannel.getMembers().end())
-    {
-        if (currentChannel.getOpByNick((*it)->getNickName()))
-            msg = " @" + (*it)->getNickName();
-        else
-            msg = " " + (*it)->getNickName();
-        send(getFd(), msg.c_str(), msg.size(), 0);
-        it++;
-    }
-    send(getFd(), "\n", 1, 0);
-}
 
 
 
-void    Client::joinChannels()
-{
-    if (_splitedCommand[1][0] == '#')
-    {
-        try
-        {
-            Channel& currentChannel =_server.getChannelbyName(_splitedCommand[1]);
-            if ((int)currentChannel.getMembers().size() >= currentChannel.getLimit() && currentChannel.getLimit() != 0)
-                send(_fd, ":Limit of Users in channel is reached\n", 38, 0);
-            else if (currentChannel.getisInviteChannel())
-            {
-                if (currentChannel.getMemberByNick(_nickName))
-                    send(_fd, ":Nick is already in channel\n", 28, 0);
-                else if (currentChannel.UserIsInvited(_nickName, 1) == 0)
-                {
-                    std::string msg = _splitedCommand[1] + ERR_INVITEONLYCHAN;
-                    send(getFd(), msg.c_str(), msg.size(), 0);
-                }
-                else
-                    join(currentChannel);
-            }
-            else if (!currentChannel.getchannelKey().empty())
-            {
-                if (_splitedCommand.size() != 3)
-                {
-                    std::string msg = _splitedCommand[1] + " :Cannot join channel (+k)\n";
-                    send(getFd(), msg.c_str(), msg.size(), 0);
-                    return ;
-                }
-                if (_splitedCommand[2] == currentChannel.getchannelKey())
-                    join(currentChannel);
-                else
-                {
-                    std::string msg = _splitedCommand[1] + " :Cannot join channel (+k)\n";
-                    send(getFd(), msg.c_str(), msg.size(), 0);
-                }
-            }  
-            else if (currentChannel.getchannelKey().empty())
-            {
-                if (currentChannel.getMemberByNick(_nickName))
-                {
-                    send(_fd, ":Nick is already in channel\n", 28, 0);
-                    return ;
-                }
-                join(currentChannel);
-            } 
-        }
-        catch (std::exception& e)
-        {
-            Channel newChannel(_splitedCommand[1], _server);
 
-            newChannel.getMembers().push_back(this);
-            newChannel.getOperators().push_back(this);
-            _server.getChannels().push_back(newChannel);
-            std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
-            send(getFd(), msg.c_str(), msg.size(), 0);
-            msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] + " :@" + getNickName() + "\n";
-            send(getFd(), msg.c_str(), msg.size(), 0);
-        }          
-    }
-}
+
 
 void    Client::needMoreParams()
 {

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Channel.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
+/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 14:31:02 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 12:45:33 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/05 13:55:44 by vstockma         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,16 +39,15 @@ class Channel
         ~Channel();
         Channel&  operator=(const Channel& inst);
         
-        std::string                 getChannelName();
-        bool                        getisInviteChannel();
-        bool                        getisTopicRestricted();
-        std::string                 getTopic();
-        int                         getLimit();
-        std::string                 getchannelKey();
+        std::string                 getChannelName() const;
+        bool                        getisInviteChannel() const;
+        bool                        getisTopicRestricted() const;
+        std::string                 getTopic() const;
+        int                         getLimit() const;
+        std::string                 getchannelKey() const;
         std::vector<Client *>&      getMembers();
         std::vector<Client *>&      getOperators();
-        std::vector<std::string>&    getinvitedUsers();
-
+        std::vector<std::string>&   getinvitedUsers();
         Client*                     getMemberByNick(std::string Nick);
         Client*                     getOpByNick(std::string Nick);
 
