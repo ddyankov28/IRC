@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/06 15:38:37 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/06 16:37:33 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ void    Client::checkFeatures()
     else if (_splitedCommand[0] != "NICK" && _splitedCommand[0] != "USER" && _splitedCommand[0] != "PASS" && _isRegistered == true)
     {
         std::string msg = _splitedCommand[0] + " :Command is not valid\n";
-        send(_fd, msg.c_str(), msg.size(), 0);
+        (void)msg;
     }
     _splitedCommand.erase(_splitedCommand.begin(), _splitedCommand.end());
 }
