@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Lib.hpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vstockma <vstockma@student.42.fr>          +#+  +:+       +#+        */
+/*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 11:54:42 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/04 13:14:16 by vstockma         ###   ########.fr       */
+/*   Updated: 2024/03/06 11:39:06 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,8 @@
 # define REGISTER "You are connected but not registered yet\n"
 # define ERR_NOTEXTTOSEND ":No text to send\n"
 # define ERR_NOSUCHNICK " :No such nick/channel\n"
-# define ERR_NORECIPIENT ":No recipient given "
+# define ERR_NORECIPIENT ":42_IRC 411 "
+# define ERR_NORECIP " :No recipient given "
 # define ERR_NOTONCHANNEL " :You're not on that channel\n"
 # define ERR_CHANNELISFULL " :Cannot join channel (+l)\n"
 # define ERR_BADCHANNELKEY " :Cannot join channel (+k)\n"

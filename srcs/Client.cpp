@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 17:43:24 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/06 13:35:29 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void    Client::setUserName(std::string userName)
 {
     if (_userName != "")
     {
-        std::string msg = ":You may not reregister\n";
+        std::string msg = ":42_IRC 462 " + _userName + " USER :You may not reregister\n";
         send(_fd, msg.c_str(), msg.size(), 0);
     }
     _userName = userName;
@@ -172,9 +172,15 @@ void    Client::checkFeatures()
 {
     if (_splitedCommand.size() < 1)
         return;
+    if (!_isRegistered)
+    {
+        _splitedCommand.erase(_splitedCommand.begin(), _splitedCommand.end());
+        return ;
+    }
     if (_splitedCommand[0] == "PRIVMSG" && _splitedCommand.size() == 1)
     {
-        std::string msg = ERR_NORECIPIENT + _splitedCommand[0] + "\n";
+        std::string msg = ERR_NORECIPIENT + _nickName + ERR_NORECIP;
+        msg += "(" +_splitedCommand[0] + ")\n";
         send(getFd(), msg.c_str(), msg.size(), 0);
     }
     else if (_splitedCommand[0] == "PRIVMSG")
@@ -259,14 +265,17 @@ void    Client::joinChannels()
         {
             Channel& currentChannel =_server.getChannelbyName(_splitedCommand[1]);
             if ((int)currentChannel.getMembers().size() >= currentChannel.getLimit() && currentChannel.getLimit() != 0)
-                send(_fd, ":Limit of Users in channel is reached\n", 38, 0);
+            {
+                std::string msg = ":42_IRC 471 " + _nickName + _splitedCommand[1] + " :Cannot join channel (+l)\n";
+                send(_fd, msg.c_str(), msg.size(), 0);
+            }  
             else if (currentChannel.getisInviteChannel())
             {
                 if (currentChannel.getMemberByNick(_nickName))
-                    send(_fd, ":Nick is already in channel\n", 28, 0);
+                    return ;
                 else if (currentChannel.UserIsInvited(_nickName, 1) == 0)
                 {
-                    std::string msg = _splitedCommand[1] + ERR_INVITEONLYCHAN;
+                    std::string msg = ":42_IRC 473 " + _nickName + _splitedCommand[1] + ERR_INVITEONLYCHAN;
                     send(getFd(), msg.c_str(), msg.size(), 0);
                 }
                 else
@@ -274,9 +283,14 @@ void    Client::joinChannels()
             }
             else if (!currentChannel.getchannelKey().empty())
             {
+                if (currentChannel.UserIsInvited(_nickName, 1) == 1)
+                {
+                    join(currentChannel);
+                    return ;
+                }
                 if (_splitedCommand.size() != 3)
                 {
-                    std::string msg = _splitedCommand[1] + " :Cannot join channel (+k)\n";
+                    std::string msg = ":42_IRC 475 " + _nickName + _splitedCommand[1] + " :Cannot join channel (+k)\n";
                     send(getFd(), msg.c_str(), msg.size(), 0);
                     return ;
                 }
@@ -284,17 +298,15 @@ void    Client::joinChannels()
                     join(currentChannel);
                 else
                 {
-                    std::string msg = _splitedCommand[1] + " :Cannot join channel (+k)\n";
+                    std::string msg = ":42_IRC 475 " + _nickName + _splitedCommand[1] + " :Cannot join channel (+k)\n";
                     send(getFd(), msg.c_str(), msg.size(), 0);
                 }
             }  
             else if (currentChannel.getchannelKey().empty())
             {
                 if (currentChannel.getMemberByNick(_nickName))
-                {
-                    send(_fd, ":Nick is already in channel\n", 28, 0);
                     return ;
-                }
+                currentChannel.UserIsInvited(_nickName, 1);
                 join(currentChannel);
             } 
         }
@@ -307,7 +319,9 @@ void    Client::joinChannels()
             _server.getChannels().push_back(newChannel);
             std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
             send(getFd(), msg.c_str(), msg.size(), 0);
-            msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] + " :@" + getNickName() + "\n";
+            msg = ":42_IRC 353 " + getNickName() + " = "  + _splitedCommand[1] + " :@" + getNickName() + "\n";
+            send(getFd(), msg.c_str(), msg.size(), 0);
+            msg = ":42_IRC 366 " + getNickName() + " " + _splitedCommand[1] + " :End of NAMES list\n";
             send(getFd(), msg.c_str(), msg.size(), 0);
         }          
     }
@@ -319,7 +333,7 @@ void    Client::join(Channel& currentChannel)
     std::vector<Client *>::iterator it = currentChannel.getMembers().begin();
     std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + "\n";
     sendToAllMembers(currentChannel, msg);
-    msg = ":42_IRC " + getNickName() + " = "  + _splitedCommand[1] +  " :";
+    msg = ":42_IRC 353 " + getNickName() + " = "  + _splitedCommand[1] +  " :";
     send(getFd(), msg.c_str(), msg.size(), 0);
     it = currentChannel.getMembers().begin();
     while (it != currentChannel.getMembers().end())
@@ -332,6 +346,8 @@ void    Client::join(Channel& currentChannel)
         it++;
     }
     send(getFd(), "\n", 1, 0);
+    msg = ":42_IRC 366 " + getNickName() + " " + _splitedCommand[1] + " :End of NAMES list\n";
+    send(getFd(), msg.c_str(), msg.size(), 0);
 }
 
 int     Client::kick(Channel& currentChannel, std::vector<Client *>::iterator itMembers)
@@ -392,14 +408,14 @@ void    Client::kickUsers()
                         else
                             ++itMembers;   
                     }
-                    send(_fd, _splitedCommand[2].c_str(), _splitedCommand[2].size(), 0);
-                    send(_fd, " :No such Nick on channel\n", 26, 0);
+                    std::string msg = ":42_IRC 441 " + _splitedCommand[2] + " " + _splitedCommand[1] + " :They aren't on that channel\n";
+                    send(_fd, msg.c_str(), msg.size(), 0);
                     return ;
                 }
                 it++;
             }
-            send(_fd, _splitedCommand[1].c_str(), _splitedCommand[1].size(), 0);
-            send(_fd, " :You're not channel operator\n", 30, 0);  
+            std::string msg = ":42_IRC 482 " + _nickName + " " + _splitedCommand[1] + " :You're not channel operator\n";
+            send(_fd, msg.c_str(), msg.size(), 0);  
         }
         else
         {
@@ -409,7 +425,7 @@ void    Client::kickUsers()
     }
     catch (std::exception& e)
     {
-        send(_fd, _splitedCommand[1].c_str(), _splitedCommand[1].size(), 0);
+        //send(_fd, _splitedCommand[1].c_str(), _splitedCommand[1].size(), 0);
         send(_fd, " :No such channel\n", 18, 0);
     }
 }
@@ -420,14 +436,14 @@ void    Client::inviteUsers()
         return ;
     else if (_splitedCommand.size() == 2)
     {
-        std::string msg = _splitedCommand[0] + ERR_NEEDMOREPARAMS;
+        std::string msg = ":42_IRC 461 " + _nickName + " " + _splitedCommand[0] + ERR_NEEDMOREPARAMS;
         send(getFd(), msg.c_str(), msg.size(), 0);
     }
     else
     {
         if (!_server.getClientByNick(_splitedCommand[1]))
         {
-            std::string msg = _splitedCommand[1] + ERR_NOSUCHNICK;
+            std::string msg = ":42_IRC 401 " + _nickName + " " + _splitedCommand[2] + " " + _splitedCommand[1] + ERR_NOSUCHNICK;
             send(getFd(), msg.c_str(), msg.size(), 0);
             return ;
         }
@@ -438,7 +454,7 @@ void    Client::inviteUsers()
         }
         catch(const std::exception& e)
         {
-            std::string msg = _splitedCommand[2] + ERR_NOSUCHNICK;
+            std::string msg = ":42_IRC 401 " + _nickName + " " + _splitedCommand[2] + ERR_NOSUCHNICK;
             send(getFd(), msg.c_str(), msg.size(), 0);
             return ;
         }
@@ -450,18 +466,20 @@ void    Client::inviteOnChannel(Channel& currentChannel)
 {
     if (!currentChannel.getOpByNick(getNickName()))
     {
-        std::string msg = getNickName() + " :You're not channel operator\n";
+        std::string msg = ":42_IRC 482 " + _nickName + " " + _splitedCommand[2] + " :You're not channel operator\n";
         send(getFd(), msg.c_str(), msg.size(), 0);
     }
     else if (currentChannel.UserIsInvited(_splitedCommand[1], 0) == 1)
+        return ;
+    else if (currentChannel.getMemberByNick(_splitedCommand[1]) != NULL)
     {
-        std::string msg = _splitedCommand[1] + " :Is already invited to channel\n";
+        std::string msg = ":42_IRC 443 " + _nickName + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + " :is already on channel\n";
         send(getFd(), msg.c_str(), msg.size(), 0);
     }
     else
     {
         currentChannel.getinvitedUsers().push_back(_splitedCommand[1]);
-        std::string msg = ":42_IRC " + _nickName + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
+        std::string msg = ":42_IRC 341 " + _nickName + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
         msg += ":42_IRC NOTICE @" + _splitedCommand[2] + " :" + _nickName + " invited " + _splitedCommand[1] + " into channel " + _splitedCommand[2] + "\n";
         send(getFd(), msg.c_str(), msg.size(), 0);
         Client *receiver = _server.getClientByNick(_splitedCommand[1]);
