@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/05 13:10:36 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/06 17:00:51 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void    Server::itsClient(int i)
         std::cout << RED << "Connection " << _polls[i].fd << " was closed" << RESET << std::endl;
         close(_polls[i].fd);
         _fdsCounter--;
-        std::cout << _clients.size() << std::endl;
+        std::cout << RED << _clients.size() << " users left in the server" << RESET << std::endl;
     }
     else
     {
