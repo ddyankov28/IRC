@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/31 16:04:57 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/06 13:35:29 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/06 15:38:37 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -348,6 +348,11 @@ void    Client::join(Channel& currentChannel)
     send(getFd(), "\n", 1, 0);
     msg = ":42_IRC 366 " + getNickName() + " " + _splitedCommand[1] + " :End of NAMES list\n";
     send(getFd(), msg.c_str(), msg.size(), 0);
+    if (!currentChannel.getTopic().empty())
+    {
+        msg = ":42_IRC 332 " + _splitedCommand[1] + " " + currentChannel.getTopic() + "\n";
+        send (_fd, msg.c_str(), msg.size(), 0);
+    }
 }
 
 int     Client::kick(Channel& currentChannel, std::vector<Client *>::iterator itMembers)
@@ -502,20 +507,17 @@ void    Client::changeTopic()
             {
                 if (currentChannel.getTopic().empty())
                 {
-                    std::string msg = ":42_IRC " + getNickName() + " " + _splitedCommand[1] + " :No topic is set for this channel\n";
-                    send(_fd, msg.c_str(), msg.size(), 0);                
+                    std::string msg = ":42_IRC 331 " + getNickName() + " " + _splitedCommand[1] + " :No topic is set\n";
+                    send(_fd, msg.c_str(), msg.size(), 0); 
                 }
                 else
                 {
-                    std::string msg = ":42_IRC " + getNickName() + " " + _splitedCommand[1] + " :" + currentChannel.getTopic() + "\n";
+                    std::string msg = ":42_IRC 332 " + getNickName() + " " + _splitedCommand[1] + " " + currentChannel.getTopic() + "\n";
                     send(_fd, msg.c_str(), msg.size(), 0);
                 }
             }
             else if (_splitedCommand.size() != 3)
-            {
-                std::string msg = _splitedCommand[0] + " :Too many parameters\n";
-                send(_fd, msg.c_str(), msg.size(), 0);                
-            }
+                return ;
             else if (!currentChannel.getisTopicRestricted())
             {
                 currentChannel.setTopic(_splitedCommand[2]);
@@ -526,7 +528,7 @@ void    Client::changeTopic()
             {
                 if (!currentChannel.getOpByNick(getNickName()))
                 {
-                    std::string msg = getNickName() + " :You're not channel operator\n";
+                    std::string msg = ":42_IRC 482 " + _nickName + " " + _splitedCommand[1] + " :You're not channel operator\n";
                     send(getFd(), msg.c_str(), msg.size(), 0);
                 }
                 else
@@ -558,7 +560,7 @@ int    Client::startMode()
         handleMode();
     else
     {
-        std::string msg = _splitedCommand[1] + " :You're not channel operator\n";
+        std::string msg = ":42_IRC 482 " + _nickName + " " + _splitedCommand[1] + " :You're not channel operator\n";
         send(getFd(), msg.c_str(), msg.size(), 0);
     }
     return 0;
@@ -570,7 +572,7 @@ void    Client::handleMode()
     {
         if (_splitedCommand[2].size() != 2)
         {
-            std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
+            std::string msg = ":42_IRC 472 "+ _nickName + " " + _splitedCommand[1] + " " + _splitedCommand[2] + ERR_UNKNOWNMODE;
             send(getFd(), msg.c_str(), msg.size(), 0);
         }
         else if (_splitedCommand[2][0] == '-' || _splitedCommand[2][0] == '+')
@@ -581,24 +583,22 @@ void    Client::handleMode()
                 handleFourParams();
             else
             {
-                std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
+                std::string msg = ":42_IRC 472 "+ _nickName  + " " + _splitedCommand[1] + " " + _splitedCommand[2] + ERR_UNKNOWNMODE;
                 send(getFd(), msg.c_str(), msg.size(), 0);
             }
         }
         else
         {
-            std::string msg = _splitedCommand[2] + ERR_UNKNOWNMODE;
+            std::string msg = ":42_IRC 472 "+ _nickName + " " + _splitedCommand[1] + " " + _splitedCommand[2] + ERR_UNKNOWNMODE;
             send(getFd(), msg.c_str(), msg.size(), 0);
         }
     }
-    else
-        send(_fd, ":Too many arguments to MODE\n", 28, 0);
 }
 
 void    Client::handleIandT()
 {
     if (_splitedCommand.size() == 4)
-        send(_fd, ":Too many parameters\n", 21, 0);
+        return ;
     else if (_splitedCommand[2][1] == 'i')
     {
         try {
@@ -658,33 +658,30 @@ void    Client::handleLimit()
         if (_splitedCommand[2] == "-l")
         {
             if (_splitedCommand.size() != 3)
-            {
-                send(_fd, ": Too much parameters\n", 22, 0);
                 return ;
-            }
             currentChannel.setlimit(_splitedCommand[2][0], "");
             std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
             sendToAllMembers(currentChannel, msg);
             return ;
         }
         else if (_splitedCommand.size() != 4)
-        {
-            send(_fd, ":Not enough parameters\n", 23, 0);
             return ;
-        }
         else if (!stringHasOnlyDigits())
         {
-            send(_fd, ": +l needs a number as an argument\n", 35, 0);
+            std::string msg = ":42_IRC 472 "+ _nickName  + " " + _splitedCommand[1] + " : +l needs a number as an argument\n";
+            send(_fd, msg.c_str(), msg.size(), 0);
             return ;
         }
         else if (atoi(_splitedCommand[3].c_str()) > MAX_CONNECTIONS)
         {
-            send(_fd, ":limit exceeds allowed max connections\n", 39, 0);
+            std::string msg = ":42_IRC 472 "+ _nickName  + " " + _splitedCommand[1] + " :limit exceeds allowed max connections\n";
+            send(_fd, msg.c_str(), msg.size(), 0);
             return ;
         }
         else if (atoi(_splitedCommand[3].c_str()) < 1)
         {
-            send(_fd, ":limit has to be at least 1\n", 28, 0);
+            std::string msg = ":42_IRC 472 "+ _nickName  + " " + _splitedCommand[1] + " :limit has to be at least 1\n";
+            send(_fd, msg.c_str(), msg.size(), 0);
             return ;
         }
         currentChannel.setlimit(_splitedCommand[2][0], _splitedCommand[3]);
@@ -710,10 +707,7 @@ void    Client::handleKeyChannel()
             return ;
         }
         else if (_splitedCommand.size() != 4)
-        {
-            send(_fd, ":Not enough parameters\n", 23, 0);
             return ;
-        }
         currentChannel.setKeyChannel(_splitedCommand[2][0], _splitedCommand[3]);
         std::string msg = ":" + getNickName() + "!" + getUserName() + "@" + _ip + " " + _splitedCommand[0] + " " + _splitedCommand[1] + " " + _splitedCommand[2] + "\n";
         sendToAllMembers(currentChannel, msg);
