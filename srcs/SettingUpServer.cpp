@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/01 13:38:21 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/22 10:33:21 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/08 13:32:33 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void    Server::setupErrorHandler(std::string msg)
 }
 void    Server::setSockFd()
 {
-    _serverFd = socket(PF_INET, SOCK_STREAM, 0); // get the fd for the server
+    _serverFd = socket(AF_INET, SOCK_STREAM, 0); // get the fd for the server
     if (_serverFd == -1)
         throw std::runtime_error("Socket Error");
     std::cout << GREEN << "🔌---Socket created successfully---🔌" << RESET << std::endl;
@@ -31,6 +31,8 @@ void    Server::setAddr()
     int opt = 1;
     if (setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)) == -1)
         setupErrorHandler("Setting socket options Error");
+    //if (fcntl(_serverFd,F_SETFL, O_NONBLOCK) == -1)
+    //    setupErrorHandler("Manipulating the socket failed");
     memset(&_servAddr, 0, sizeof(_servAddr));
     _servAddr.sin_family = AF_INET;  // ipv4
     _servAddr.sin_addr.s_addr = INADDR_ANY; // accept connections on any of the available network interfaces on the machine

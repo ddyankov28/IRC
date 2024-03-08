@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/18 10:40:17 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/02/27 09:43:39 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/07 09:10:29 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,5 @@ int main(int ac, char **av)
     {
         std::cerr << RED << e.what() << RESET << std::endl;
     }
-    
-    
     return 0;
 }

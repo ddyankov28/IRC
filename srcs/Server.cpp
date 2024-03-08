@@ -6,7 +6,7 @@
 /*   By: ddyankov <ddyankov@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/01/19 13:57:00 by ddyankov          #+#    #+#             */
-/*   Updated: 2024/03/06 17:00:51 by ddyankov         ###   ########.fr       */
+/*   Updated: 2024/03/08 13:58:44 by ddyankov         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,9 @@ Server::Server(char *av1, char *av2) : _port(atoi(av1)), _password(av2), _fdsCou
 Server::~Server()
 {
     for (unsigned int i = 0; i < _clients.size(); i++)
+    {
         delete _clients[i];
+    }
 }
 
 void    Server::acceptAndAddConnections()
@@ -33,8 +35,16 @@ void    Server::acceptAndAddConnections()
     socklen_t newConnectionLen = sizeof(newConnection);
     if ((newFd = accept(_serverFd, (struct sockaddr *) &newConnection, &newConnectionLen)) == -1)
         setupErrorHandler("Accepting a new connection Error");
+    if (_fdsCounter + 1 > MAX_CONNECTIONS)
+    {
+        send(newFd, "Server is full",14 ,0);
+        std::cout << RED << "Server is full. Client was rejected" << RESET << std::endl; 
+        close(newFd);
+        return ;
+    }
+    struct in_addr ipAddress = newConnection.sin_addr;
     char str[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &newConnection, str, INET_ADDRSTRLEN);
+	inet_ntop(AF_INET, &ipAddress, str, INET_ADDRSTRLEN);
     _polls[_fdsCounter].fd = newFd;
     _polls[_fdsCounter].events = POLLIN;
     _polls[_fdsCounter].revents = 0;
@@ -58,7 +68,6 @@ void    Server::itsClient(int i)
     if (!currentCli)
         throw std::runtime_error("Could not find Client");
     int bytes = recv(_polls[i].fd, buffer, sizeof(buffer), 0);
-    // Connection closed or Error
     if (bytes > 512)
         send(_polls[i].fd, "Message limit is 512 characters\n", 32, 0);
     else if (bytes <= 0)
@@ -69,12 +78,15 @@ void    Server::itsClient(int i)
             std::cout << RED << "Connection " << _polls[i].fd << " was closed" << RESET << std::endl;
         }
         else
+        {
             perror("Error");
-        removeClient(_polls[i].fd);
-        std::cout << RED << "Connection " << _polls[i].fd << " was closed" << RESET << std::endl;
+            removeClient(_polls[i].fd);
+            std::cout << RED << "Connection " << _polls[i].fd << " was closed" << RESET << std::endl;
+        }
         close(_polls[i].fd);
+        _polls[i] = _polls[_fdsCounter - 1];
         _fdsCounter--;
-        std::cout << RED << _clients.size() << " users left in the server" << RESET << std::endl;
+        std::cout << RED << _clients.size() << " user/s left in the server" << RESET << std::endl;
     }
     else
     {
@@ -82,7 +94,8 @@ void    Server::itsClient(int i)
         buff = buffer;
         if (buff.find_first_of("\r\n") == std::string::npos)
         {
-            // std::cout << "THERE WAS CTRL + D PRESSED " << std::endl;
+            std::cout << "---[ Saved from Client im Buffer ] ---" << std::endl;
+            std::cout << buff << std::endl;
             currentCli->setBuff(currentCli->getBuff() + buff);
         }
         else
@@ -92,7 +105,6 @@ void    Server::itsClient(int i)
             // std::cout << "THERE WAS ENTER PRESSED" << std::endl;
             currentCli->setCliCommand(currentCli->getBuff());
             std::cout << "---[ Message from Client ] ---" << std::endl << currentCli->getBuff() << std::endl;
-            
             if (currentCli->moreLinesInBuffer() >= 2)
             {
                 size_t i = 0;
@@ -116,7 +128,6 @@ void    Server::itsClient(int i)
                 currentCli->checkFeatures();
                 currentCli->setBuff("");
             }
-            
         }
     }
 }
@@ -144,6 +155,8 @@ void    Server::removeClient(int fd)
                     if ((*itMembers)->getNickName() == (*itClients)->getNickName())
                     {
                         std::cout << RED << "User " << (*itClients)->getNickName() << " was removed from the channel" << RESET << std::endl;
+                        std::string msg = ":" + (*itMembers)->getNickName() + "!" + (*itMembers)->getUserName() + "@" + (*itMembers)->getIp() + " PART " + _channels[i].getChannelName() + "\n";
+                        (*itMembers)->sendToAllMembers(_channels[i], msg);
                         _channels[i].getMembers().erase(itMembers);
                     }
                     else
@@ -170,8 +183,6 @@ void    Server::handleEvents()
             if (_polls[i].fd == _serverFd)
             {
                 std::cout << GREEN << "Server ready to accept" << RESET << std::endl;
-                if (_fdsCounter + 1 > MAX_CONNECTIONS)
-                    throw std::out_of_range("Max Connections limit is reached");
                 acceptAndAddConnections();
             }
             else // It is client //
