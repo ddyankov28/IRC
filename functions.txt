@@ -82,3 +82,13 @@ int GETSOCKNAME(int SOCKFD, struct sockaddr *ADDR, socklen_t *ADDRLEN)
     the actual size of the socket address. 
 
 -------------------------------------------------------------------------------------------
+
+Connection Registration
+    1. Pass message
+    2. Nick message
+    3. User message
+
+    Password message
+    Command: PASS
+    Parameters: <password>
+    
