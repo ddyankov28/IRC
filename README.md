@@ -28,8 +28,8 @@ IRC usage has been declining steadily since 2003, losing 60 percent of its users
 - INVITE  -> Invite a client to a channel
 - TOPIC   -> Change or view the channel topic
 - MODE    -> Change the channel's mode
-     -- i -> Set/ remove Invite-only channel
-     -- t -> Set/ remove the restrictions of the TOPIC to channel operators
-     -- k -> Set/ remove the channel key (password)
-     -- o -> Give/ take channel operator privilege
-     -- l -> Set/ remove the user limit to channel
+     - i -> Set/ remove Invite-only channel
+     - t -> Set/ remove the restrictions of the TOPIC to channel operators
+     - k -> Set/ remove the channel key (password)
+     - o -> Give/ take channel operator privilege
+     - l -> Set/ remove the user limit to channel
